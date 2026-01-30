@@ -1,10 +1,10 @@
 <div align="center">
 
-  <!-- Logo -->
-  <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" width="120"/>
-
-  <!-- Title -->
-  <h1>Nemp Memory</h1>
+  <!-- Logo + Title -->
+  <h1>
+    <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" width="45" style="vertical-align: middle;"/>
+    Nemp Memory
+  </h1>
 
   <!-- Tagline -->
   <p>
