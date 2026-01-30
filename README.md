@@ -1,7 +1,7 @@
 <div align="center">
 
   <!-- Logo -->
-  <img src="assets/logo/nemp-logo-256.png" alt="Nemp Memory Logo" width="120"/>
+  <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" width="120"/>
 
   <!-- Title -->
   <h1>Nemp Memory</h1>
@@ -20,7 +20,7 @@
   </p>
 
   <!-- Banner -->
-  <img src="assets/images/banner.png" alt="Claude Code × Nemp Memory" width="100%"/>
+  <img src="assets/images/Nemp banner.png" alt="Claude Code × Nemp Memory" width="100%"/>
 
   <br/>
 
