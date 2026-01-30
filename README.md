@@ -21,7 +21,8 @@
     <img src="https://img.shields.io/badge/Claude_Code-Compatible-purple.svg" alt="Claude Code">
   </p>
 
-  <!-- Banner placeholder - add your banner image here -->
+  <!-- Banner -->
+  <img src="assets/images/Nemp banner 2.png" alt="Nemp Memory Banner" width="100%"/>
 
   <br/>
 
