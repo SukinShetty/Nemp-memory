@@ -49,20 +49,6 @@ Nemp remembers FOR you:
 
 ---
 
-## 🆚 Nemp vs Supermemory
-
-| Feature | Nemp | Supermemory |
-|---------|:----:|:-----------:|
-| **Privacy** | 100% Local | Cloud-based |
-| **Cost** | Free Forever | $9-99/month |
-| **Setup** | One command | API key required |
-| **Speed** | Instant | Network latency |
-| **Offline** | ✅ Works | ❌ Requires internet |
-| **Open Source** | ✅ Fully | ❌ Partially |
-| **Data Ownership** | You own it | Their servers |
-
----
-
 ## 🚀 Quick Start
 
 ### Installation
