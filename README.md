@@ -1,10 +1,12 @@
 <div align="center">
 
-  <!-- Logo + Title -->
-  <h1>
-    <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="150" style="vertical-align: middle;"/>
-    Nemp Memory
-  </h1>
+  <!-- Logo + Title on same line -->
+  <table border="0" cellspacing="0" cellpadding="0" align="center">
+    <tr>
+      <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="80"/></td>
+      <td><h1>&nbsp;Nemp Memory</h1></td>
+    </tr>
+  </table>
 
   <!-- Tagline -->
   <p>
