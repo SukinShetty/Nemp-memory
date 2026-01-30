@@ -2,7 +2,7 @@
 
   <!-- Logo + Title -->
   <h1>
-    <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="40" style="vertical-align: middle;"/>
+    <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="150" style="vertical-align: middle;"/>
     Nemp Memory
   </h1>
 
