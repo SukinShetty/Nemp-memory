@@ -1,15 +1,33 @@
-# 🧠 Nemp Memory
+<div align="center">
 
-> The memory plugin for Claude Code that remembers everything.
-> 100% local. 100% free. 100% open source.
+  <!-- Logo -->
+  <img src="assets/logo/nemp-logo-256.png" alt="Nemp Memory Logo" width="120"/>
 
-<!-- Demo GIF placeholder - replace with actual recording -->
-<!-- ![Nemp Demo](assets/demo.gif) -->
+  <!-- Title -->
+  <h1>Nemp Memory</h1>
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![GitHub stars](https://img.shields.io/github/stars/SukinShetty/Nemp-memory?style=social)](https://github.com/SukinShetty/Nemp-memory/stargazers)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/SukinShetty/Nemp-memory/releases)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-purple.svg)](https://claude.ai/code)
+  <!-- Tagline -->
+  <p>
+    <em>The memory plugin for Claude Code that remembers everything. 100% local. 100% free. 100% open source.</em>
+  </p>
+
+  <!-- Badges -->
+  <p>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
+    <a href="https://github.com/SukinShetty/Nemp-memory/stargazers"><img src="https://img.shields.io/github/stars/SukinShetty/Nemp-memory.svg" alt="Stars"></a>
+    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+    <img src="https://img.shields.io/badge/Claude_Code-Compatible-purple.svg" alt="Claude Code">
+  </p>
+
+  <!-- Banner -->
+  <img src="assets/images/banner.png" alt="Claude Code × Nemp Memory" width="100%"/>
+
+  <br/>
+
+  <!-- Call to Action -->
+  <h3>Stop repeating yourself. Start remembering everything.</h3>
+
+</div>
 
 ---
 
