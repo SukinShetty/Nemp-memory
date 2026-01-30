@@ -1,0 +1,23 @@
+# Nemp local data (never commit user memories)
+.nemp/
+
+# Claude Code local settings
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Test files
+test*.js

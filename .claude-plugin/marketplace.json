@@ -1,0 +1,13 @@
+{
+  "name": "nemp-local",
+  "owner": {
+    "name": "Local"
+  },
+  "plugins": [
+    {
+      "name": "nemp",
+      "source": "./",
+      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code"
+    }
+  ]
+}

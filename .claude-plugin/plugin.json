@@ -1,0 +1,5 @@
+{
+  "name": "nemp",
+  "version": "1.0.1",
+  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects"
+}
