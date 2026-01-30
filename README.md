@@ -60,9 +60,9 @@ Nemp remembers FOR you:
 
 | Feature | Description |
 |---------|-------------|
+| 🤖 **Auto-Capture** | Automatically logs file edits, creations, and commands in the background. No manual saving needed! |
 | 🎯 **Project Memory** | Save context specific to each project |
 | 🌍 **Global Memory** | Save preferences that work everywhere |
-| 🤖 **Auto-Capture** | Automatically log file edits, writes, and commands |
 | 🔒 **100% Local** | Your data never leaves your machine |
 | ⚡ **Zero Setup** | No API keys, no accounts, no cloud |
 | 🆓 **Free Forever** | No limits, no tiers, no payments |
@@ -99,6 +99,43 @@ Or copy `.claude-plugin/` and `commands/` to your project root.
 # Save globally (works across ALL projects)
 /nemp:save-global preferred-lang TypeScript over JavaScript always
 ```
+
+---
+
+## 🤖 Auto-Capture (Beta)
+
+Nemp can automatically capture your development activities in the background!
+
+### What gets captured:
+- **File Edits** - When you modify files
+- **File Creation** - When you create new files
+- **Commands** - Git commits, npm/bun commands, tests, builds
+
+### What gets excluded:
+- Navigation commands (ls, cd, pwd)
+- node_modules, .git, log files
+- Internal operations
+
+### How to use:
+
+```bash
+# Enable auto-capture
+/nemp:auto-capture on
+
+# Check status
+/nemp:auto-capture status
+
+# View captured activities
+/nemp:activity
+
+# View activity statistics
+/nemp:activity --stats
+
+# Disable auto-capture
+/nemp:auto-capture off
+```
+
+> **Note:** Auto-capture is disabled by default. Enable it when you want Nemp to automatically remember your work!
 
 ---
 
@@ -207,15 +244,20 @@ Your memories are YOUR memories.
 ```
 Nemp-memory/
 ├── .claude-plugin/
-│   └── plugin.json      # Plugin configuration
+│   └── plugin.json       # Plugin configuration
 ├── commands/
-│   ├── save.md          # /nemp:save
-│   ├── recall.md        # /nemp:recall
-│   ├── list.md          # /nemp:list
-│   ├── forget.md        # /nemp:forget
-│   ├── save-global.md   # /nemp:save-global
-│   ├── recall-global.md # /nemp:recall-global
-│   └── list-global.md   # /nemp:list-global
+│   ├── save.md           # /nemp:save
+│   ├── recall.md         # /nemp:recall
+│   ├── list.md           # /nemp:list
+│   ├── forget.md         # /nemp:forget
+│   ├── save-global.md    # /nemp:save-global
+│   ├── recall-global.md  # /nemp:recall-global
+│   ├── list-global.md    # /nemp:list-global
+│   ├── auto-capture.md   # /nemp:auto-capture
+│   └── activity.md       # /nemp:activity
+├── hooks/
+│   ├── hooks.json        # Hook configuration
+│   └── post-tool.md      # Auto-capture logic
 ├── LICENSE
 └── README.md
 ```
