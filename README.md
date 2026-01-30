@@ -1,137 +1,244 @@
-# Nemp
+# 🧠 Nemp Memory
 
-**Persistent memory for Claude Code.** Save context once, use it forever.
+> The memory plugin for Claude Code that remembers everything.
+> 100% local. 100% free. 100% open source.
+
+<!-- Demo GIF placeholder - replace with actual recording -->
+<!-- ![Nemp Demo](assets/demo.gif) -->
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GitHub stars](https://img.shields.io/github/stars/SukinShetty/Nemp-memory?style=social)](https://github.com/SukinShetty/Nemp-memory/stargazers)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/SukinShetty/Nemp-memory/releases)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-purple.svg)](https://claude.ai/code)
 
 ---
 
-Claude forgets everything between sessions. Nemp fixes that.
+## 🎯 Why Nemp?
 
-Save your preferences, project conventions, architecture decisions, and anything else you'd rather not repeat. Nemp stores memories locally on your machine and makes them available whenever you need them.
+### The Problem
 
-## Why Nemp?
+Using Claude Code, you constantly re-explain context:
 
-| Without Nemp | With Nemp |
-|--------------|-----------|
-| "Use Bun, not npm" (every session) | `/nemp:save tooling Use Bun for package management` (once) |
-| Re-explaining your auth flow | `/nemp:recall auth` |
-| Forgetting project conventions | `/nemp:list` to see everything |
+- "Remember, I prefer TypeScript"
+- "As I mentioned earlier, this uses JWT auth"
+- "Like we discussed yesterday..."
 
-## Installation
+**Claude forgets everything between sessions.** Every. Single. Time.
 
-**Option 1: Clone the repository**
+### The Solution
+
+Nemp remembers FOR you:
+
+- ✅ **Save once, recall forever**
+- ✅ **Global memory across all projects**
+- ✅ **Local storage (complete privacy)**
+- ✅ **Zero setup required**
+
+---
+
+## ⚡ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🎯 **Project Memory** | Save context specific to each project |
+| 🌍 **Global Memory** | Save preferences that work everywhere |
+| 🔒 **100% Local** | Your data never leaves your machine |
+| ⚡ **Zero Setup** | No API keys, no accounts, no cloud |
+| 🆓 **Free Forever** | No limits, no tiers, no payments |
+| 📦 **Simple Commands** | `/nemp:save`, `/nemp:recall`, `/nemp:list` |
+
+---
+
+## 🆚 Nemp vs Supermemory
+
+| Feature | Nemp | Supermemory |
+|---------|:----:|:-----------:|
+| **Privacy** | 100% Local | Cloud-based |
+| **Cost** | Free Forever | $9-99/month |
+| **Setup** | One command | API key required |
+| **Speed** | Instant | Network latency |
+| **Offline** | ✅ Works | ❌ Requires internet |
+| **Open Source** | ✅ Fully | ❌ Partially |
+| **Data Ownership** | You own it | Their servers |
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
 ```bash
+# Clone and use
 git clone https://github.com/SukinShetty/Nemp-memory.git
-cd Nemp-memory
 ```
 
-**Option 2: Copy to your project**
+Or copy `.claude-plugin/` and `commands/` to your project root.
+
+### Basic Usage
+
 ```bash
-# Copy .claude-plugin/ and commands/ to your project root
-```
+# Save a memory
+/nemp:save auth-method Uses JWT with refresh tokens
 
-That's it. No dependencies. No build step. No API keys.
+# Recall a memory
+/nemp:recall auth-method
 
-## Commands
-
-### Save a Memory
-
-```
-/nemp:save <key> <value>
-```
-
-```
-/nemp:save auth-flow JWT tokens with 15min expiry, refresh tokens last 7 days
-/nemp:save prefer-bun Always use Bun instead of npm
-/nemp:save api-base https://api.example.com/v2
-```
-
-### Recall a Memory
-
-```
-/nemp:recall <key-or-search>
-```
-
-```
-/nemp:recall auth-flow          # Exact key
-/nemp:recall authentication     # Fuzzy search
-/nemp:recall how does auth work # Natural language
-```
-
-### List All Memories
-
-```
+# List all memories
 /nemp:list
+
+# Forget a memory
+/nemp:forget auth-method
+
+# Save globally (works across ALL projects)
+/nemp:save-global preferred-lang TypeScript over JavaScript always
 ```
-
-Shows all saved memories with their keys and values.
-
-### Forget a Memory
-
-```
-/nemp:forget <key>
-```
-
-Permanently deletes a memory (with confirmation).
-
-### Global Memories
-
-For preferences that apply across all your projects:
-
-```
-/nemp:save-global prefer-typescript I always prefer TypeScript over JavaScript
-/nemp:recall-global prefer-typescript
-/nemp:list-global
-```
-
-Global memories are stored in `~/.nemp/memories.json` and available everywhere.
-
-## Storage
-
-All data stays on your machine. No cloud. No sync. No tracking.
-
-| Type | Location | Use Case |
-|------|----------|----------|
-| Project | `.nemp/memories.json` | Project-specific context |
-| Global | `~/.nemp/memories.json` | Cross-project preferences |
-
-Memories are plain JSON—easy to backup, edit, or migrate.
-
-## Examples
-
-**Save your coding preferences:**
-```
-/nemp:save style-guide Use 2 spaces, single quotes, no semicolons
-/nemp:save testing-framework Jest with React Testing Library
-/nemp:save-global editor-config VSCode with Vim keybindings
-```
-
-**Save architecture decisions:**
-```
-/nemp:save db-choice PostgreSQL with Prisma ORM
-/nemp:save auth-strategy Session-based auth, no JWT for web app
-/nemp:save api-style REST with JSON:API specification
-```
-
-**Save project context:**
-```
-/nemp:save deploy-process Push to main triggers Vercel deploy
-/nemp:save env-vars DATABASE_URL, STRIPE_KEY, RESEND_API_KEY required
-/nemp:save team-conventions PR requires 1 approval, squash merge only
-```
-
-## Privacy
-
-- All memories stored locally in JSON files
-- No external services or network requests
-- No telemetry or analytics
-- You own your data completely
-
-## License
-
-MIT
 
 ---
 
-**Built for developers who are tired of repeating themselves.**
+## 📚 Commands
 
-[Report Issues](https://github.com/SukinShetty/Nemp-memory/issues) · [Contribute](https://github.com/SukinShetty/Nemp-memory)
+### Project Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `/nemp:save <key> <value>` | Save project memory | `/nemp:save db-type PostgreSQL with Prisma` |
+| `/nemp:recall <key>` | Recall memory | `/nemp:recall db-type` |
+| `/nemp:list` | List all memories | `/nemp:list` |
+| `/nemp:forget <key>` | Delete memory | `/nemp:forget db-type` |
+
+### Global Commands
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `/nemp:save-global <key> <value>` | Save globally | `/nemp:save-global coding-style functional` |
+| `/nemp:recall-global <key>` | Recall global | `/nemp:recall-global coding-style` |
+| `/nemp:list-global` | List global memories | `/nemp:list-global` |
+
+---
+
+## 💾 How It Works
+
+### Project Memory
+
+Stored in `.nemp/memories.json` in your project:
+
+```json
+{
+  "memories": [
+    {
+      "key": "auth-method",
+      "value": "JWT with refresh tokens, 15min access, 7-day refresh",
+      "created": "2026-01-30T10:30:00Z",
+      "updated": "2026-01-30T10:30:00Z",
+      "projectPath": "/path/to/project"
+    }
+  ]
+}
+```
+
+### Global Memory
+
+Stored in `~/.nemp/memories.json` (your home directory):
+
+```json
+{
+  "memories": [
+    {
+      "key": "preferred-lang",
+      "value": "TypeScript over JavaScript always",
+      "created": "2026-01-30T10:30:00Z",
+      "scope": "global"
+    }
+  ]
+}
+```
+
+---
+
+## 🧠 What Should You Save?
+
+### Coding Preferences
+```
+/nemp:save-global style Use 2 spaces, single quotes, no semicolons
+/nemp:save-global testing Jest with React Testing Library
+/nemp:save-global typescript Always prefer TypeScript
+```
+
+### Project Architecture
+```
+/nemp:save auth JWT access tokens (15min) with refresh tokens (7 days)
+/nemp:save database PostgreSQL with Prisma ORM
+/nemp:save api REST with JSON:API specification
+```
+
+### Team Conventions
+```
+/nemp:save git-flow Feature branches, squash merge, require 1 approval
+/nemp:save deploy Push to main triggers Vercel deploy
+/nemp:save env-vars DATABASE_URL, STRIPE_KEY, RESEND_API_KEY required
+```
+
+---
+
+## 🛡️ Privacy & Security
+
+| | |
+|---|---|
+| ✅ **100% Local** | All data stored on your machine |
+| ✅ **No Telemetry** | We don't track anything |
+| ✅ **No Cloud** | Your data never leaves your computer |
+| ✅ **No Accounts** | No sign-up, no login |
+| ✅ **Offline Ready** | Works without internet |
+| ✅ **Plain JSON** | Human-readable, easy to backup |
+
+Your memories are YOUR memories.
+
+---
+
+## 📁 Project Structure
+
+```
+Nemp-memory/
+├── .claude-plugin/
+│   └── plugin.json      # Plugin configuration
+├── commands/
+│   ├── save.md          # /nemp:save
+│   ├── recall.md        # /nemp:recall
+│   ├── list.md          # /nemp:list
+│   ├── forget.md        # /nemp:forget
+│   ├── save-global.md   # /nemp:save-global
+│   ├── recall-global.md # /nemp:recall-global
+│   └── list-global.md   # /nemp:list-global
+├── LICENSE
+└── README.md
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📜 License
+
+MIT © 2026 [Sukin Shetty](https://github.com/SukinShetty)
+
+---
+
+<div align="center">
+
+**⭐ If Nemp makes your Claude Code experience better, give it a star!**
+
+Made with ❤️ by [Sukin Shetty](https://github.com/SukinShetty)
+
+[Report Bug](https://github.com/SukinShetty/Nemp-memory/issues) · [Request Feature](https://github.com/SukinShetty/Nemp-memory/issues)
+
+</div>
