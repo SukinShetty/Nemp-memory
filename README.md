@@ -62,6 +62,7 @@ Nemp remembers FOR you:
 |---------|-------------|
 | 🎯 **Project Memory** | Save context specific to each project |
 | 🌍 **Global Memory** | Save preferences that work everywhere |
+| 🤖 **Auto-Capture** | Automatically log file edits, writes, and commands |
 | 🔒 **100% Local** | Your data never leaves your machine |
 | ⚡ **Zero Setup** | No API keys, no accounts, no cloud |
 | 🆓 **Free Forever** | No limits, no tiers, no payments |
