@@ -3,7 +3,7 @@
   <!-- Logo + Title on same line -->
   <table border="0" cellspacing="0" cellpadding="0" align="center">
     <tr>
-      <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="80"/></td>
+      <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="120"/></td>
       <td><h1>&nbsp;Nemp Memory</h1></td>
     </tr>
   </table>
