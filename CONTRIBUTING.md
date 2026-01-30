@@ -40,7 +40,7 @@ claude plugin install .
 
 ## Questions?
 
-Open an issue or reach out to [@SukinShetty](https://github.com/SukinShetty)
+Open an issue or email us at contact@nemp.dev
 
 ---
 

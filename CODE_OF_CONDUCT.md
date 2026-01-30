@@ -20,7 +20,7 @@ We pledge to make participation in Nemp a harassment-free experience for everyon
 
 ## Enforcement
 
-Violations can be reported to sukin@example.com (replace with your email)
+Violations can be reported to contact@nemp.dev
 
 ## Attribution
 
