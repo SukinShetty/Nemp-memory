@@ -60,6 +60,7 @@ Nemp remembers FOR you:
 
 | Feature | Description |
 |---------|-------------|
+| ✨ **Smart Init** | One command to auto-detect your entire tech stack! |
 | 🤖 **Auto-Capture** | Automatically logs file edits, creations, and commands in the background. No manual saving needed! |
 | 🎯 **Project Memory** | Save context specific to each project |
 | 🌍 **Global Memory** | Save preferences that work everywhere |
@@ -70,18 +71,115 @@ Nemp remembers FOR you:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-### Installation
+### Quick Install (Recommended)
 
 ```bash
-# Clone and use
-git clone https://github.com/SukinShetty/Nemp-memory.git
+# Step 1: Add the Nemp marketplace
+/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+
+# Step 2: Install the plugin
+/plugin install nemp
 ```
 
-Or copy `.claude-plugin/` and `commands/` to your project root.
+That's it! You're ready to go.
 
-### Basic Usage
+### Alternative: Manual Installation
+
+<details>
+<summary>Click to expand manual installation options</summary>
+
+#### Option A: Clone to your project
+
+```bash
+# In your project directory
+git clone https://github.com/SukinShetty/Nemp-memory.git .nemp-plugin
+
+# Copy plugin files to your project root
+cp -r .nemp-plugin/.claude-plugin .
+cp -r .nemp-plugin/commands .
+cp -r .nemp-plugin/hooks .
+
+# Clean up
+rm -rf .nemp-plugin
+```
+
+#### Option B: Manual copy
+
+1. Download or clone this repo
+2. Copy these folders to your project root:
+   - `.claude-plugin/`
+   - `commands/`
+   - `hooks/`
+
+#### Option C: Global installation (all projects)
+
+```bash
+# Clone to Claude Code's plugin directory
+git clone https://github.com/SukinShetty/Nemp-memory.git ~/.claude/plugins/nemp-memory
+```
+
+</details>
+
+### Verify Installation
+
+After installing, run:
+```bash
+/nemp:list
+```
+
+You should see an empty list (or existing memories if you've used Nemp before).
+
+### Troubleshooting
+
+**Commands not recognized:**
+- Make sure you ran both `/plugin marketplace add` and `/plugin install nemp`
+- Restart Claude Code after installation
+- For manual installs: ensure `.claude-plugin/plugin.json` exists in your project root
+
+**Permissions:**
+Nemp needs filesystem access to create the `.nemp` folder in your projects.
+You'll be prompted to allow this on first use.
+
+---
+
+## ✨ Magic Init (The WOW Feature!)
+
+Just run one command and Nemp will scan your project and remember everything:
+
+```bash
+/nemp:init
+```
+
+**What it detects automatically:**
+- 📦 Package manager (npm, yarn, pnpm, bun)
+- 🔧 Language (TypeScript/JavaScript)
+- ⚛️ Framework (Next.js, React, Vue, Remix, Astro, etc.)
+- 🗄️ Database & ORM (Prisma, Drizzle, MongoDB, PostgreSQL, etc.)
+- 🔐 Authentication (NextAuth, Clerk, Supabase Auth, etc.)
+- 🎨 Styling (Tailwind, shadcn/ui, Chakra, etc.)
+- 🧪 Testing (Vitest, Jest, Playwright, etc.)
+
+**Example output:**
+```
+╔══════════════════════════════════════════════════════════════╗
+║                    🔍 NEMP PROJECT SCAN                      ║
+╠══════════════════════════════════════════════════════════════╣
+║  📦 Package Manager: pnpm                                    ║
+║  🔧 Language: TypeScript                                     ║
+║  ⚛️  Framework: Next.js 14 (App Router)                       ║
+║  🗄️  Database: Prisma + PostgreSQL                            ║
+║  🔐 Auth: NextAuth.js                                        ║
+║  🎨 Styling: Tailwind CSS + shadcn/ui                        ║
+╚══════════════════════════════════════════════════════════════╝
+
+✅ Saved 6 memories! Run /nemp:recall stack anytime.
+```
+
+---
+
+## 📖 Basic Usage
 
 ```bash
 # Save a memory
@@ -140,6 +238,12 @@ Nemp can automatically capture your development activities in the background!
 ---
 
 ## 📚 Commands
+
+### Quick Start
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `/nemp:init` | **Auto-detect project stack** | `/nemp:init` |
 
 ### Project Commands
 
@@ -246,6 +350,7 @@ Nemp-memory/
 ├── .claude-plugin/
 │   └── plugin.json       # Plugin configuration
 ├── commands/
+│   ├── init.md           # /nemp:init (auto-detect stack!)
 │   ├── save.md           # /nemp:save
 │   ├── recall.md         # /nemp:recall
 │   ├── list.md           # /nemp:list

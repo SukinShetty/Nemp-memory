@@ -1,5 +1,47 @@
 {
   "name": "nemp",
-  "version": "1.0.1",
-  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects"
+  "version": "0.1.0",
+  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects",
+  "commands": [
+    {
+      "name": "save",
+      "description": "Save a key-value memory entry to persistent storage"
+    },
+    {
+      "name": "recall",
+      "description": "Retrieve a memory by key or search query"
+    },
+    {
+      "name": "list",
+      "description": "List all saved memory keys"
+    },
+    {
+      "name": "forget",
+      "description": "Delete a memory by key"
+    },
+    {
+      "name": "save-global",
+      "description": "Save a memory globally across all projects"
+    },
+    {
+      "name": "recall-global",
+      "description": "Retrieve a global memory"
+    },
+    {
+      "name": "list-global",
+      "description": "List all global memories"
+    },
+    {
+      "name": "auto-capture",
+      "description": "Enable or disable automatic memory capture"
+    },
+    {
+      "name": "init",
+      "description": "Auto-detect project stack and save as memories"
+    },
+    {
+      "name": "activity",
+      "description": "View recent activity log"
+    }
+  ]
 }

@@ -1,13 +1,14 @@
 {
-  "name": "nemp-local",
-  "owner": {
-    "name": "Local"
-  },
+  "name": "Nemp Memory",
+  "description": "The memory plugin for Claude Code that remembers everything. 100% local. 100% free. 100% open source.",
   "plugins": [
     {
       "name": "nemp",
-      "source": "./",
-      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code"
+      "version": "0.1.0",
+      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects",
+      "repository": "https://github.com/SukinShetty/Nemp-memory",
+      "author": "Sukin Shetty",
+      "license": "MIT"
     }
   ]
 }
