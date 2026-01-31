@@ -1,398 +1,365 @@
+# Nemp Memory
+
 <div align="center">
+  <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory" width="120"/>
 
-  <!-- Logo + Title on same line -->
-  <table border="0" cellspacing="0" cellpadding="0" align="center">
-    <tr>
-      <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="120"/></td>
-      <td><h1>&nbsp;Nemp Memory</h1></td>
-    </tr>
-  </table>
+  <p><strong>Smart memory for Claude Code</strong></p>
 
-  <!-- Tagline -->
-  <p>
-    <em>The memory plugin for Claude Code that remembers everything. 100% local. 100% free. 100% open source.</em>
-  </p>
-
-  <!-- Badges -->
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-    <a href="https://github.com/SukinShetty/Nemp-memory/stargazers"><img src="https://img.shields.io/github/stars/SukinShetty/Nemp-memory.svg" alt="Stars"></a>
-    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
-    <img src="https://img.shields.io/badge/Claude_Code-Compatible-purple.svg" alt="Claude Code">
+    <img src="https://img.shields.io/badge/Claude_Code-Compatible-blue.svg" alt="Claude Code">
   </p>
-
-  <!-- Banner -->
-  <img src="assets/images/Nemp banner 2.png" alt="Nemp Memory Banner" width="100%"/>
-
-  <br/>
-
-  <!-- Call to Action -->
-  <h3>Stop repeating yourself. Start remembering everything.</h3>
-
 </div>
 
 ---
 
-## 🎯 Why Nemp?
+## The Problem
 
-### The Problem
+Every time you start a new Claude Code session, you repeat yourself.
 
-Using Claude Code, you constantly re-explain context:
+**You waste 15-20 minutes every session re-explaining context.**
 
-- "Remember, I prefer TypeScript"
-- "As I mentioned earlier, this uses JWT auth"
-- "Like we discussed yesterday..."
-
-**Claude forgets everything between sessions.** Every. Single. Time.
-
-### The Solution
-
-Nemp remembers FOR you:
-
-- ✅ **Save once, recall forever**
-- ✅ **Global memory across all projects**
-- ✅ **Local storage (complete privacy)**
-- ✅ **Zero setup required**
+Nemp solves this. Once.
 
 ---
 
-## ⚡ Features
+## What It Does
 
-| Feature | Description |
-|---------|-------------|
-| ✨ **Smart Init** | One command to auto-detect your entire tech stack! |
-| 🤖 **Auto-Capture** | Automatically logs file edits, creations, and commands in the background. No manual saving needed! |
-| 🎯 **Project Memory** | Save context specific to each project |
-| 🌍 **Global Memory** | Save preferences that work everywhere |
-| 🔒 **100% Local** | Your data never leaves your machine |
-| ⚡ **Zero Setup** | No API keys, no accounts, no cloud |
-| 🆓 **Free Forever** | No limits, no tiers, no payments |
-| 📦 **Simple Commands** | `/nemp:save`, `/nemp:recall`, `/nemp:list` |
+Nemp gives Claude Code three superpowers:
 
----
+### Auto-Detection (`/nemp:init`)
 
-## 🚀 Installation
+Scans your project and remembers everything automatically.
 
-### Quick Install (Recommended)
-
-```bash
-# Step 1: Add the Nemp marketplace
-/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-
-# Step 2: Install the plugin
-/plugin install nemp
-```
-
-That's it! You're ready to go.
-
-### Alternative: Manual Installation
-
-<details>
-<summary>Click to expand manual installation options</summary>
-
-#### Option A: Clone to your project
-
-```bash
-# In your project directory
-git clone https://github.com/SukinShetty/Nemp-memory.git .nemp-plugin
-
-# Copy plugin files to your project root
-cp -r .nemp-plugin/.claude-plugin .
-cp -r .nemp-plugin/commands .
-cp -r .nemp-plugin/hooks .
-
-# Clean up
-rm -rf .nemp-plugin
-```
-
-#### Option B: Manual copy
-
-1. Download or clone this repo
-2. Copy these folders to your project root:
-   - `.claude-plugin/`
-   - `commands/`
-   - `hooks/`
-
-#### Option C: Global installation (all projects)
-
-```bash
-# Clone to Claude Code's plugin directory
-git clone https://github.com/SukinShetty/Nemp-memory.git ~/.claude/plugins/nemp-memory
-```
-
-</details>
-
-### Verify Installation
-
-After installing, run:
-```bash
-/nemp:list
-```
-
-You should see an empty list (or existing memories if you've used Nemp before).
-
-### Troubleshooting
-
-**Commands not recognized:**
-- Make sure you ran both `/plugin marketplace add` and `/plugin install nemp`
-- Restart Claude Code after installation
-- For manual installs: ensure `.claude-plugin/plugin.json` exists in your project root
-
-**Permissions:**
-Nemp needs filesystem access to create the `.nemp` folder in your projects.
-You'll be prompted to allow this on first use.
-
----
-
-## ✨ Magic Init (The WOW Feature!)
-
-Just run one command and Nemp will scan your project and remember everything:
-
+**Example:**
 ```bash
 /nemp:init
+
+Scanning your project...
+
+I found:
+- Framework: Next.js 14 (App Router detected)
+- Language: TypeScript (strict mode)
+- Database: PostgreSQL via Prisma
+- Auth: NextAuth.js
+- Styling: Tailwind CSS
+- Package Manager: npm
+
+Saved 6 memories
+
+Next time you ask Claude about this project,
+I'll provide this context automatically!
 ```
 
-**What it detects automatically:**
-- 📦 Package manager (npm, yarn, pnpm, bun)
-- 🔧 Language (TypeScript/JavaScript)
-- ⚛️ Framework (Next.js, React, Vue, Remix, Astro, etc.)
-- 🗄️ Database & ORM (Prisma, Drizzle, MongoDB, PostgreSQL, etc.)
-- 🔐 Authentication (NextAuth, Clerk, Supabase Auth, etc.)
-- 🎨 Styling (Tailwind, shadcn/ui, Chakra, etc.)
-- 🧪 Testing (Vitest, Jest, Playwright, etc.)
-
-**Example output:**
-```
-╔══════════════════════════════════════════════════════════════╗
-║                    🔍 NEMP PROJECT SCAN                      ║
-╠══════════════════════════════════════════════════════════════╣
-║  📦 Package Manager: pnpm                                    ║
-║  🔧 Language: TypeScript                                     ║
-║  ⚛️  Framework: Next.js 14 (App Router)                       ║
-║  🗄️  Database: Prisma + PostgreSQL                            ║
-║  🔐 Auth: NextAuth.js                                        ║
-║  🎨 Styling: Tailwind CSS + shadcn/ui                        ║
-╚══════════════════════════════════════════════════════════════╝
-
-✅ Saved 6 memories! Run /nemp:recall stack anytime.
-```
+**Why it matters:** One command. Your entire tech stack saved. Never explain it again.
 
 ---
 
-## 📖 Basic Usage
+### Smart Context Search (`/nemp:context`)
 
+Find relevant memories instantly when you need them.
+
+**Example:**
 ```bash
-# Save a memory
-/nemp:save auth-method Uses JWT with refresh tokens
+# You're working on authentication
+/nemp:context auth
 
-# Recall a memory
-/nemp:recall auth-method
+FOUND 3 MEMORIES MATCHING "auth"
 
-# List all memories
-/nemp:list
+  auth-provider [KEY MATCH]
+  NextAuth.js with JWT strategy
 
-# Forget a memory
-/nemp:forget auth-method
+  auth-tokens [VALUE MATCH]
+  15min access tokens, 7day refresh tokens
 
-# Save globally (works across ALL projects)
-/nemp:save-global preferred-lang TypeScript over JavaScript always
+  auth-middleware [KEY MATCH]
+  Protects all /api routes except /auth/*
+
+Found 3 memories
+
+Quick actions:
+  /nemp:recall auth-provider
+  /nemp:context database
+```
+
+**Why it matters:** Zero searching through old conversations. Type one word, get all relevant context.
+
+**How it works:**
+- Searches both keys and values
+- Expands keywords automatically ("auth" also searches: authentication, login, session, jwt, oauth...)
+- Shows relevance (key match vs value match)
+- Suggests related searches
+
+---
+
+### Proactive Suggestions (`/nemp:suggest`)
+
+Nemp watches what you code and suggests memories to save.
+
+**Example scenario:**
+```bash
+# You've been editing auth files for 30 minutes
+# Nemp notices the pattern...
+
+/nemp:suggest
+
+NEMP MEMORY SUGGESTIONS
+Based on your recent activity
+
+Analyzed   45 activities
+Found      3 suggestions
+
+#1  auth-approach                        PRIORITY: HIGH
+
+DRAFTED VALUE:
+Authentication: JWT tokens in auth/ directory
+Files: login.ts, session.ts, middleware.ts
+Pattern: 15min access tokens, httpOnly cookies
+
+WHY SUGGESTED:
+You edited 3 auth files 7+ times in 30 minutes.
+This pattern is worth remembering.
+
+[1] Save   [E] Edit   [S] Skip
+```
+
+**Why it matters:** Nemp does the work for you. It notices patterns you might miss and drafts the memory content.
+
+**What it detects:**
+- Files edited frequently (3+ times = important file)
+- Directories with lots of activity (auth/, api/, components/)
+- New packages installed (npm install zod = suggests saving it)
+- Command patterns (always run tests before commits)
+- Time-based focus (30+ minutes on same area)
+
+**How to use:**
+```bash
+/nemp:suggest              # Interactive - choose what to save
+/nemp:suggest --auto       # Auto-save HIGH priority suggestions
 ```
 
 ---
 
-## 🤖 Auto-Capture (Beta)
+## Auto-Capture (Background Intelligence)
 
-Nemp can automatically capture your development activities in the background!
+Nemp can optionally track your work automatically.
 
-### What gets captured:
-- **File Edits** - When you modify files
-- **File Creation** - When you create new files
-- **Commands** - Git commits, npm/bun commands, tests, builds
-
-### What gets excluded:
-- Navigation commands (ls, cd, pwd)
-- node_modules, .git, log files
-- Internal operations
-
-### How to use:
-
+**What it captures:**
 ```bash
 # Enable auto-capture
 /nemp:auto-capture on
 
-# Check status
-/nemp:auto-capture status
+# Now Nemp logs (in the background):
+- Files you edit or create
+- Commands you run (npm, git, etc.)
+- Build/test/deploy activities
 
-# View captured activities
+# View captured activity
 /nemp:activity
 
-# View activity statistics
-/nemp:activity --stats
-
-# Disable auto-capture
-/nemp:auto-capture off
+Recent Activity:
+  2026-01-31 14:23  Edit    src/auth/login.ts
+  2026-01-31 14:25  Edit    src/auth/session.ts
+  2026-01-31 14:27  Bash    npm test
+  2026-01-31 14:30  Bash    git commit -m "Add JWT refresh"
 ```
 
-> **Note:** Auto-capture is disabled by default. Enable it when you want Nemp to automatically remember your work!
+**Privacy-first:**
+- Disabled by default
+- Stores locally in `.nemp/activity.log`
+- Smart filtering (excludes node_modules, .git, logs)
+- You control what gets captured
+- Never sent anywhere
+
+**Why it's useful:**
+- Powers the `/nemp:suggest` feature
+- Helps you remember what you worked on
+- Tracks your development patterns
 
 ---
 
-## 📚 Commands
+## All Commands
 
 ### Quick Start
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `/nemp:init` | **Auto-detect project stack** | `/nemp:init` |
-
-### Project Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `/nemp:save <key> <value>` | Save project memory | `/nemp:save db-type PostgreSQL with Prisma` |
-| `/nemp:recall <key>` | Recall memory | `/nemp:recall db-type` |
-| `/nemp:list` | List all memories | `/nemp:list` |
-| `/nemp:forget <key>` | Delete memory | `/nemp:forget db-type` |
-
-### Global Commands
-
-| Command | Description | Example |
-|---------|-------------|---------|
-| `/nemp:save-global <key> <value>` | Save globally | `/nemp:save-global coding-style functional` |
-| `/nemp:recall-global <key>` | Recall global | `/nemp:recall-global coding-style` |
-| `/nemp:list-global` | List global memories | `/nemp:list-global` |
-
----
-
-## 💾 How It Works
-
-### Project Memory
-
-Stored in `.nemp/memories.json` in your project:
-
-```json
-{
-  "memories": [
-    {
-      "key": "auth-method",
-      "value": "JWT with refresh tokens, 15min access, 7-day refresh",
-      "created": "2026-01-30T10:30:00Z",
-      "updated": "2026-01-30T10:30:00Z",
-      "projectPath": "/path/to/project"
-    }
-  ]
-}
+```bash
+/nemp:init                 # Auto-detect and save your stack
 ```
 
-### Global Memory
+### Memory Management
+```bash
+/nemp:save <key> <value>   # Save a memory
+/nemp:recall <key>         # Retrieve a memory
+/nemp:list                 # List all memories
+/nemp:forget <key>         # Delete a memory
+```
 
-Stored in `~/.nemp/memories.json` (your home directory):
+### Global Memories (Cross-Project)
+```bash
+/nemp:save-global <key> <value>   # Save globally
+/nemp:recall-global <key>          # Recall global memory
+/nemp:list-global                  # List all global memories
+```
 
-```json
-{
-  "memories": [
-    {
-      "key": "preferred-lang",
-      "value": "TypeScript over JavaScript always",
-      "created": "2026-01-30T10:30:00Z",
-      "scope": "global"
-    }
-  ]
-}
+### Smart Features
+```bash
+/nemp:context <query>      # Search memories by keyword
+/nemp:suggest              # Get memory suggestions
+/nemp:suggest --auto       # Auto-save suggestions
+```
+
+### Activity Tracking
+```bash
+/nemp:auto-capture on      # Enable background tracking
+/nemp:auto-capture off     # Disable tracking
+/nemp:auto-capture status  # Check status
+/nemp:activity             # View activity log
 ```
 
 ---
 
-## 🧠 What Should You Save?
+## Installation
 
-### Coding Preferences
-```
-/nemp:save-global style Use 2 spaces, single quotes, no semicolons
-/nemp:save-global testing Jest with React Testing Library
-/nemp:save-global typescript Always prefer TypeScript
+**Inside Claude Code:**
+```bash
+/plugin install https://github.com/SukinShetty/Nemp-memory
 ```
 
-### Project Architecture
-```
-/nemp:save auth JWT access tokens (15min) with refresh tokens (7 days)
-/nemp:save database PostgreSQL with Prisma ORM
-/nemp:save api REST with JSON:API specification
-```
-
-### Team Conventions
-```
-/nemp:save git-flow Feature branches, squash merge, require 1 approval
-/nemp:save deploy Push to main triggers Vercel deploy
-/nemp:save env-vars DATABASE_URL, STRIPE_KEY, RESEND_API_KEY required
+**Restart Claude Code, then verify:**
+```bash
+/nemp:list
 ```
 
 ---
 
-## 🛡️ Privacy & Security
+## Real-World Examples
 
-| | |
-|---|---|
-| ✅ **100% Local** | All data stored on your machine |
-| ✅ **No Telemetry** | We don't track anything |
-| ✅ **No Cloud** | Your data never leaves your computer |
-| ✅ **No Accounts** | No sign-up, no login |
-| ✅ **Offline Ready** | Works without internet |
-| ✅ **Plain JSON** | Human-readable, easy to backup |
+### Example 1: New Team Member Onboarding
 
-Your memories are YOUR memories.
+**Sarah joins your project:**
+```bash
+# She runs once:
+/nemp:init
 
----
+# Now when she asks Claude:
+"How does authentication work in this project?"
 
-## 📁 Project Structure
-
-```
-Nemp-memory/
-├── .claude-plugin/
-│   └── plugin.json       # Plugin configuration
-├── commands/
-│   ├── init.md           # /nemp:init (auto-detect stack!)
-│   ├── save.md           # /nemp:save
-│   ├── recall.md         # /nemp:recall
-│   ├── list.md           # /nemp:list
-│   ├── forget.md         # /nemp:forget
-│   ├── save-global.md    # /nemp:save-global
-│   ├── recall-global.md  # /nemp:recall-global
-│   ├── list-global.md    # /nemp:list-global
-│   ├── auto-capture.md   # /nemp:auto-capture
-│   └── activity.md       # /nemp:activity
-├── hooks/
-│   ├── hooks.json        # Hook configuration
-│   └── post-tool.md      # Auto-capture logic
-├── LICENSE
-└── README.md
+# Claude already knows (from Nemp's memory):
+- Uses NextAuth.js
+- JWT tokens (15min access, 7day refresh)
+- Protected routes via middleware
+- Custom signin page at /auth/signin
 ```
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+**Time saved:** 20 minutes of context gathering reduced to 0 seconds
 
 ---
 
-## 📜 License
+### Example 2: Context Switching Between Projects
+
+**Marcus works on 3 client projects:**
+```bash
+# Project A (E-commerce)
+cd ~/client-a
+/nemp:recall stack
+# "Next.js, Stripe, PostgreSQL"
+
+# Project B (SaaS)
+cd ~/client-b
+/nemp:recall stack
+# "React, Supabase, Tailwind"
+
+# No confusion. Each project has its own memory.
+```
+
+**Time saved:** 15 minutes per project switch reduced to instant context
+
+---
+
+### Example 3: Remembering Decisions
+
+**During development:**
+```bash
+/nemp:save api-design "RESTful, not GraphQL - team decision on 2024-01-15"
+/nemp:save error-handling "Use Zod for validation, return 400 with error codes"
+/nemp:save deployment "Deploy preview on PR, production on merge to main"
+```
+
+**Two months later:**
+```bash
+/nemp:context api
+# Instantly recalls: "RESTful, not GraphQL - team decision..."
+```
+
+**Time saved:** No digging through Slack, Notion, or old PRs
+
+---
+
+## Privacy & Security
+
+- **100% Local:** All data stored in `.nemp/` folder (plain JSON)
+- **No Telemetry:** Zero tracking, analytics, or phone-home
+- **No Cloud:** Your data never leaves your machine
+- **You Own It:** Delete `.nemp/` folder anytime
+- **Open Source:** Audit the code yourself (MIT License)
+
+**Where data lives:**
+```
+Project memories:  .nemp/memories.json (in your project)
+Global memories:   ~/.nemp/memories.json (in your home folder)
+Activity log:      .nemp/activity.log (in your project)
+```
+
+---
+
+## Why Nemp?
+
+**Other solutions:**
+- Require cloud accounts
+- Charge monthly fees
+- Send your code context to their servers
+
+**Nemp:**
+- Works offline
+- Costs nothing
+- Keeps everything local
+
+**Core principle:** Your code context is private. It should stay with you.
+
+---
+
+## How It Works
+
+1. **Storage:** Simple JSON files in `.nemp/` folder
+2. **Scope:** Project memories (local) + Global memories (cross-project)
+3. **Intelligence:** Pattern detection via activity analysis
+4. **Privacy:** Everything happens on your machine
+
+**No magic. No cloud. Just smart local storage.**
+
+---
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+**Ideas for contributors:**
+- Add detection for more frameworks
+- Improve memory suggestion algorithms
+- Build export/import features
+- Create integrations
+
+---
+
+## License
 
 MIT © 2026 [Sukin Shetty](https://github.com/SukinShetty)
 
+Open source. Use freely. No restrictions.
+
 ---
 
-<div align="center">
+## Support
 
-**⭐ If Nemp makes your Claude Code experience better, give it a star!**
+If Nemp saves you time, give it a star!
 
-Made with ❤️ by [Sukin Shetty](https://github.com/SukinShetty)
-
-[Report Bug](https://github.com/SukinShetty/Nemp-memory/issues) · [Request Feature](https://github.com/SukinShetty/Nemp-memory/issues)
-
-</div>
+**Built for developers who are tired of repeating themselves.**
