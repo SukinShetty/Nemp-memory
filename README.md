@@ -228,15 +228,45 @@ Recent Activity:
 
 ## Installation
 
-**Inside Claude Code:**
+### Option 1: Manual Installation (Recommended)
+
+**Clone directly into your Claude Code plugins folder:**
+
+**macOS/Linux:**
 ```bash
-/plugin install https://github.com/SukinShetty/Nemp-memory
+git clone https://github.com/SukinShetty/Nemp-memory.git ~/.claude/plugins/nemp-memory
+```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/SukinShetty/Nemp-memory.git "$env:USERPROFILE\.claude\plugins\nemp-memory"
+```
+
+**Windows (Git Bash):**
+```bash
+git clone https://github.com/SukinShetty/Nemp-memory.git ~/.claude/plugins/nemp-memory
 ```
 
 **Restart Claude Code, then verify:**
 ```bash
 /nemp:list
 ```
+
+### Option 2: Official Plugin Directory (Coming Soon)
+
+Once approved in the Claude Code plugin directory:
+```bash
+/plugin install nemp@claude-plugins-official
+```
+
+### Updating the Plugin
+
+**To update to the latest version:**
+```bash
+cd ~/.claude/plugins/nemp-memory && git pull
+```
+
+Then restart Claude Code.
 
 ---
 
