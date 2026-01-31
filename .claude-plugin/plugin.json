@@ -4,5 +4,55 @@
   "author": {
     "name": "Sukin Shetty",
     "url": "https://github.com/SukinShetty"
-  }
+  },
+  "commands": [
+    {
+      "name": "activity",
+      "description": "View captured activity log"
+    },
+    {
+      "name": "auto-capture",
+      "description": "Enable or disable automatic activity capture"
+    },
+    {
+      "name": "forget",
+      "description": "Delete a memory by key"
+    },
+    {
+      "name": "init",
+      "description": "Auto-detect project stack and save as memories"
+    },
+    {
+      "name": "list",
+      "description": "List all saved memory keys"
+    },
+    {
+      "name": "list-global",
+      "description": "List all global memories"
+    },
+    {
+      "name": "recall",
+      "description": "Retrieve a memory by key or search query"
+    },
+    {
+      "name": "recall-global",
+      "description": "Retrieve a global memory"
+    },
+    {
+      "name": "save",
+      "description": "Save a key-value memory entry to persistent storage"
+    },
+    {
+      "name": "save-global",
+      "description": "Save a memory globally across all projects"
+    },
+    {
+      "name": "context",
+      "description": "Search memories by keyword and show relevant context"
+    },
+    {
+      "name": "suggest",
+      "description": "Analyze activity and suggest memories to save"
+    }
+  ]
 }
