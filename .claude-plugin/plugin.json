@@ -3,7 +3,7 @@
   "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects",
   "author": {
     "name": "Sukin Shetty",
-    "url": "https://github.com/SukinShetty"
+    "email": "sukinshetty@gmail.com"
   },
   "commands": [
     {
