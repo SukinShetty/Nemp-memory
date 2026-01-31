@@ -1,9 +1,5 @@
 <div align="center">
 
-  <img src="assets/images/Nemp banner 2.png" alt="Nemp Memory Banner" width="100%"/>
-
-  <br/>
-
   <table border="0" cellspacing="0" cellpadding="0">
     <tr>
       <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="80"/></td>
@@ -17,6 +13,11 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
     <img src="https://img.shields.io/badge/Claude_Code-Compatible-blue.svg" alt="Claude Code">
   </p>
+
+  <br/>
+
+  <img src="assets/images/Nemp banner 2.png" alt="Nemp Memory Banner" width="100%"/>
+
 </div>
 
 ---
