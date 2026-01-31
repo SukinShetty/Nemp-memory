@@ -1,7 +1,15 @@
-# Nemp Memory
-
 <div align="center">
-  <img src="assets/logo/Nemp Logo.png" alt="Nemp Memory" width="120"/>
+
+  <img src="assets/images/Nemp banner 2.png" alt="Nemp Memory Banner" width="100%"/>
+
+  <br/>
+
+  <table border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td><img src="assets/logo/Nemp Logo.png" alt="Nemp Memory Logo" height="80"/></td>
+      <td><h1>&nbsp;Nemp Memory</h1></td>
+    </tr>
+  </table>
 
   <p><strong>Smart memory for Claude Code</strong></p>
 
