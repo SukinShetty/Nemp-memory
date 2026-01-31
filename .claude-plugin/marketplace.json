@@ -1,20 +1,25 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nemp-memory",
+  "description": "Nemp Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects. Save, recall, and manage memories that persist between conversations.",
   "owner": {
     "name": "Sukin Shetty",
-    "url": "https://github.com/SukinShetty"
+    "email": "sukinshetty@gmail.com"
   },
   "plugins": [
     {
       "name": "nemp",
+      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
       "version": "0.1.0",
-      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects",
-      "source": "./",
       "author": {
         "name": "Sukin Shetty",
-        "url": "https://github.com/SukinShetty"
+        "email": "sukinshetty@gmail.com"
       },
-      "license": "MIT"
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/SukinShetty/Nemp-memory",
+      "license": "MIT",
+      "tags": ["memory", "persistence", "context", "productivity"]
     }
   ]
 }
