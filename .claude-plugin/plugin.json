@@ -8,18 +8,5 @@
     "url": "https://github.com/SukinShetty"
   },
   "homepage": "https://github.com/SukinShetty/Nemp-memory",
-  "commands": [
-    "init",
-    "save",
-    "recall",
-    "list",
-    "forget",
-    "save-global",
-    "recall-global",
-    "list-global",
-    "auto-capture",
-    "activity",
-    "context",
-    "suggest"
-  ]
+  "license": "MIT"
 }
