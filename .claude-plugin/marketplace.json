@@ -15,7 +15,7 @@
         "name": "Sukin Shetty",
         "email": "contact@nemp.dev"
       },
-      "source": "../",
+      "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/SukinShetty/Nemp-memory",
       "license": "MIT",
