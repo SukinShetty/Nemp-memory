@@ -72,15 +72,16 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 
 ## 3 Features That Set Nemp Apart
 
-### 1. Auto-Init: One Command Learns Everything
+### 1️⃣ Auto-Init: One Command Learns Everything
 
-**Unique to Nemp.**
+**Unique to Nemp:** Auto-detects your entire stack in one command.
+
+<!-- TODO: Add demo GIF -->
+<!-- ![Auto-init demo](assets/demos/nemp-init-demo.gif) -->
 
 ```bash
 /nemp:init
 ```
-
-<!-- TODO: Add demo GIF - assets/demos/nemp-init-demo.gif -->
 
 That's it. Nemp scans your project and automatically detects:
 - Framework (Next.js, React, Vue, etc.)
@@ -113,15 +114,16 @@ Claude now knows your stack forever.
 
 ---
 
-### 2. Smart Context: Find Memories Instantly
+### 2️⃣ Smart Context: Find Memories Instantly
 
-**Unique to Nemp.**
+**Unique to Nemp:** Semantic search that understands what you're looking for.
+
+<!-- TODO: Add demo GIF -->
+<!-- ![Smart context demo](assets/demos/nemp-context-demo.gif) -->
 
 ```bash
 /nemp:context auth
 ```
-
-<!-- TODO: Add demo GIF - assets/demos/nemp-context-demo.gif -->
 
 Nemp doesn't just search for "auth" — it expands to:
 - authentication, login, session, jwt, oauth, nextauth, clerk, token, passport, credentials...
@@ -151,17 +153,16 @@ Quick actions:
 
 ---
 
-### 3. Memory Suggestions: AI Suggests What to Save
+### 3️⃣ Memory Suggestions: AI Suggests What to Save
 
-**Unique to Nemp.**
+**Unique to Nemp:** Nemp watches your work and proactively suggests memories.
 
-Nemp watches your work and proactively suggests memories:
+<!-- TODO: Add demo GIF -->
+<!-- ![Memory suggestions demo](assets/demos/nemp-suggest-demo.gif) -->
 
 ```bash
 /nemp:suggest
 ```
-
-<!-- TODO: Add demo GIF - assets/demos/nemp-suggest-demo.gif -->
 
 **Example output:**
 ```
@@ -217,64 +218,56 @@ This pattern is worth remembering.
 
 ## Troubleshooting
 
-<details>
-<summary><strong>Commands not working?</strong></summary>
+### Commands not working?
 
-1. **Restart Claude Code completely** - Close and reopen the terminal
-2. **Check if plugin loaded:** `/plugin list` - Look for `nemp` in the list
-3. **Verify Claude Code version:** Must be v2.0 or higher
+**Step 1: Restart Claude Code**
+```bash
+exit
+claude
+```
 
-</details>
+**Step 2: Verify installation**
+```bash
+/plugin list
+# Should show: nemp@nemp-memory
+```
 
-<details>
-<summary><strong>Plugin not loading?</strong></summary>
-
-1. Remove the marketplace entry and re-add:
-   ```bash
-   /plugin marketplace remove nemp
-   /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-   /plugin install nemp
-   ```
-
-2. Clear plugin cache:
-   ```bash
-   rm -rf ~/.claude/plugins/nemp*
-   ```
-
-3. Reinstall fresh
-
-</details>
-
-<details>
-<summary><strong>Uninstall Nemp</strong></summary>
-
-**Remove the plugin:**
+**Step 3: Clean reinstall**
 ```bash
 /plugin uninstall nemp
-/plugin marketplace remove nemp
+/plugin marketplace remove nemp-memory
+exit
+claude
+/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+/plugin install nemp
+exit
+claude
 ```
 
-**Delete all Nemp data (optional):**
+### Uninstalling Nemp
+
+**Remove plugin:**
 ```bash
-# Remove project memories (run in each project)
+/plugin uninstall nemp
+/plugin marketplace remove nemp-memory
+```
+
+**Delete all data (optional):**
+```bash
+# Delete project memories
 rm -rf .nemp
 
-# Remove global memories
+# Delete global memories
 rm -rf ~/.nemp
-
-# Clear plugin cache
-rm -rf ~/.claude/plugins/nemp*
 ```
 
-</details>
+**Note:** Deleting `.nemp` folders removes ALL saved memories permanently.
 
-<details>
-<summary><strong>Still having issues?</strong></summary>
+### Still having issues?
 
-- Check GitHub Issues: [github.com/SukinShetty/Nemp-memory/issues](https://github.com/SukinShetty/Nemp-memory/issues)
-- Email: [contact@nemp.dev](mailto:contact@nemp.dev)
-
-</details>
+1. Check Claude Code version (requires v2.0+)
+2. Clear cache: `rm -rf ~/.claude/plugins/cache/nemp*`
+3. [Open an issue on GitHub](https://github.com/SukinShetty/Nemp-memory/issues)
 
 ---
 
@@ -420,9 +413,19 @@ Open source. Free forever. Use however you want.
 
 ## Support This Project
 
-**If Nemp saves you time, give it a star!**
+**Love Nemp? Here's how you can help:**
 
-Star count helps other developers discover Nemp.
+⭐ **[Star this repo](https://github.com/SukinShetty/Nemp-memory)** – Helps other developers discover Nemp
+🐛 **[Report bugs](https://github.com/SukinShetty/Nemp-memory/issues)** – Make Nemp better for everyone
+💡 **Share your use case** – Tweet [@sukin_s](https://x.com/sukin_s) with #NempMemory
+🔀 **[Contribute code](CONTRIBUTING.md)** – See contributing guidelines
+
+**Join the community:**
+- 💬 Discord: *Coming Soon*
+- 🐦 Twitter: [@sukin_s](https://x.com/sukin_s)
+- 💼 LinkedIn: [Sukin Shetty](https://linkedin.com/in/sukinshetty-1984)
+
+**Every star motivates us to build better features!**
 
 ---
 
