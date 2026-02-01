@@ -48,19 +48,9 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 **Nemp is stupidly simple:**
 
 ```bash
-# Other plugins:
-1. Install dependencies (SQLite/Ollama/Bun)
-2. Sign up for cloud account
-3. Get API key
-4. Configure MCP servers
-5. Set up databases
-6. Start web servers
-7-12. More configuration...
-
-# Nemp:
-1. /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-2. /plugin install nemp
-Done.
+/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+/plugin install nemp
+# Done.
 ```
 
 **Zero dependencies. No cloud. No API keys. Plain JSON files. Just works.**
