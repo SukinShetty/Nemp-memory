@@ -1,58 +1,21 @@
 {
   "name": "nemp",
-  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects",
-  "author": {
-    "name": "Sukin Shetty",
-    "email": "sukinshetty@gmail.com"
-  },
+  "version": "0.1.0",
+  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
+  "author": "Sukin Shetty",
+  "homepage": "https://github.com/SukinShetty/Nemp-memory",
   "commands": [
-    {
-      "name": "activity",
-      "description": "View captured activity log"
-    },
-    {
-      "name": "auto-capture",
-      "description": "Enable or disable automatic activity capture"
-    },
-    {
-      "name": "forget",
-      "description": "Delete a memory by key"
-    },
-    {
-      "name": "init",
-      "description": "Auto-detect project stack and save as memories"
-    },
-    {
-      "name": "list",
-      "description": "List all saved memory keys"
-    },
-    {
-      "name": "list-global",
-      "description": "List all global memories"
-    },
-    {
-      "name": "recall",
-      "description": "Retrieve a memory by key or search query"
-    },
-    {
-      "name": "recall-global",
-      "description": "Retrieve a global memory"
-    },
-    {
-      "name": "save",
-      "description": "Save a key-value memory entry to persistent storage"
-    },
-    {
-      "name": "save-global",
-      "description": "Save a memory globally across all projects"
-    },
-    {
-      "name": "context",
-      "description": "Search memories by keyword and show relevant context"
-    },
-    {
-      "name": "suggest",
-      "description": "Analyze activity and suggest memories to save"
-    }
+    "init",
+    "save",
+    "recall",
+    "list",
+    "forget",
+    "save-global",
+    "recall-global",
+    "list-global",
+    "auto-capture",
+    "activity",
+    "context",
+    "suggest"
   ]
 }
