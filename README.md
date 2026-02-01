@@ -76,8 +76,9 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 
 **Unique to Nemp:** Auto-detects your entire stack in one command.
 
-<!-- TODO: Add demo GIF -->
-<!-- ![Auto-init demo](assets/demos/nemp-init-demo.gif) -->
+<p align="center">
+  <img src="assets/demos/nemp-init-demo-optimized.gif" alt="Auto-init demo" width="100%"/>
+</p>
 
 ```bash
 /nemp:init
@@ -118,8 +119,9 @@ Claude now knows your stack forever.
 
 **Unique to Nemp:** Semantic search that understands what you're looking for.
 
-<!-- TODO: Add demo GIF -->
-<!-- ![Smart context demo](assets/demos/nemp-context-demo.gif) -->
+<p align="center">
+  <img src="assets/demos/nemp-context-demo.gif" alt="Smart context demo" width="100%"/>
+</p>
 
 ```bash
 /nemp:context auth
@@ -157,8 +159,9 @@ Quick actions:
 
 **Unique to Nemp:** Nemp watches your work and proactively suggests memories.
 
-<!-- TODO: Add demo GIF -->
-<!-- ![Memory suggestions demo](assets/demos/nemp-suggest-demo.gif) -->
+<p align="center">
+  <img src="assets/demos/nemp-suggest-demo-optimized.gif" alt="Memory suggestions demo" width="100%"/>
+</p>
 
 ```bash
 /nemp:suggest
