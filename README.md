@@ -7,11 +7,14 @@
     </tr>
   </table>
 
-  <p><strong>Smart memory for Claude Code</strong></p>
+  <p><strong>100% Local Memory for Claude Code • Privacy-First • Zero Setup</strong></p>
 
   <p>
+    <img src="https://img.shields.io/badge/100%25-Local-brightgreen.svg" alt="100% Local">
+    <img src="https://img.shields.io/badge/No_Cloud-Required-blue.svg" alt="No Cloud">
+    <img src="https://img.shields.io/badge/No_API_Key-Needed-blue.svg" alt="No API Key">
+    <img src="https://img.shields.io/badge/Privacy-First-purple.svg" alt="Privacy First">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-    <img src="https://img.shields.io/badge/Claude_Code-Compatible-blue.svg" alt="Claude Code">
   </p>
 
   <br/>
@@ -40,9 +43,10 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 
 ---
 
-## Why Nemp?
+## Why Nemp Is Different
 
-**Nemp is different. It's stupidly simple:**
+**Nemp is stupidly simple:**
+
 ```bash
 # Other plugins:
 1. Install dependencies (SQLite/Ollama/Bun)
@@ -56,21 +60,37 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 # Nemp:
 1. /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
 2. /plugin install nemp
-✅ Done.
+Done.
 ```
 
 **Zero dependencies. No cloud. No API keys. Plain JSON files. Just works.**
 
+| Feature | Other Plugins | Nemp |
+|---------|---------------|------|
+| **Setup** | 10+ steps | **2 commands** |
+| **Dependencies** | SQLite, Ollama, web servers | **None** |
+| **Cloud Required** | Often yes | **No** |
+| **API Key Required** | Often yes | **No** |
+| **Data Storage** | Binary databases, cloud | **Plain JSON** |
+| **Privacy** | Data may leave your machine | **100% Local** |
+| **Auto-detect Stack** | No | **Yes** |
+| **Proactive Suggestions** | No | **Yes** |
+| **Works Offline** | Sometimes | **Always** |
+| **Cost** | Free to $19/month | **Free Forever** |
+
 ---
 
-## ⚡ 3 Features That Set Nemp Apart
+## 3 Features That Set Nemp Apart
 
-### 1️⃣ Auto-Init: One Command Learns Everything
+### 1. Auto-Init: One Command Learns Everything
 
-**No other plugin does this.**
+**Unique to Nemp.**
+
 ```bash
 /nemp:init
 ```
+
+<!-- TODO: Add demo GIF - assets/demos/nemp-init-demo.gif -->
 
 That's it. Nemp scans your project and automatically detects:
 - Framework (Next.js, React, Vue, etc.)
@@ -82,7 +102,7 @@ That's it. Nemp scans your project and automatically detects:
 
 **Example output:**
 ```
-✨ Scanning your project...
+Scanning your project...
 I found:
 
 Framework: Next.js 14 (App Router detected)
@@ -92,7 +112,7 @@ Auth: NextAuth.js
 Styling: Tailwind CSS
 Package Manager: npm
 
-💾 Saved 6 memories in 2 seconds
+Saved 6 memories in 2 seconds
 Claude now knows your stack forever.
 ```
 
@@ -103,30 +123,32 @@ Claude now knows your stack forever.
 
 ---
 
-### 2️⃣ Smart Context: Find Memories Instantly
+### 2. Smart Context: Find Memories Instantly
 
-**Other plugins have search. Nemp has smart search.**
+**Unique to Nemp.**
+
 ```bash
 /nemp:context auth
 ```
+
+<!-- TODO: Add demo GIF - assets/demos/nemp-context-demo.gif -->
 
 Nemp doesn't just search for "auth" — it expands to:
 - authentication, login, session, jwt, oauth, nextauth, clerk, token, passport, credentials...
 
 **Example output:**
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FOUND 3 MEMORIES MATCHING "auth"
+
 auth-provider [KEY MATCH]
-─────────────────────────
-NextAuth.js with JWT strategy
+  NextAuth.js with JWT strategy
+
 auth-tokens [KEY + VALUE MATCH]
-───────────────────────────────
-15min access tokens, 7day refresh
+  15min access tokens, 7day refresh
+
 auth-middleware [KEY MATCH]
-───────────────────────────
-Protects all /api routes except /auth/*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Protects all /api routes except /auth/*
+
 Quick actions:
 /nemp:recall auth-provider    # View details
 /nemp:context database        # Search database
@@ -139,33 +161,35 @@ Quick actions:
 
 ---
 
-### 3️⃣ Memory Suggestions: AI Suggests What to Save
+### 3. Memory Suggestions: AI Suggests What to Save
 
-**This is Nemp's superpower. No other plugin does this.**
+**Unique to Nemp.**
 
 Nemp watches your work and proactively suggests memories:
+
 ```bash
 /nemp:suggest
 ```
 
+<!-- TODO: Add demo GIF - assets/demos/nemp-suggest-demo.gif -->
+
 **Example output:**
 ```
-💡 NEMP MEMORY SUGGESTIONS
+NEMP MEMORY SUGGESTIONS
 Based on your recent activity patterns:
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃  #1  auth-approach                  PRIORITY: HIGH ┃
-┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+
+#1  auth-approach                              PRIORITY: HIGH
+
 DRAFTED FOR YOU:
-┌─────────────────────────────────────────────────┐
-│ Authentication: JWT tokens, 15min access,       │
-│ 7day refresh. Files: login.ts, session.ts,     │
-│ middleware.ts in auth/ directory                │
-└─────────────────────────────────────────────────┘
+  Authentication: JWT tokens, 15min access,
+  7day refresh. Files: login.ts, session.ts,
+  middleware.ts in auth/ directory
+
 WHY SUGGESTED:
 You edited 3 auth files 7+ times in 30 minutes.
 This pattern is worth remembering.
+
 [1] Save  [E] Edit  [S] Skip
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
 **What it detects:**
@@ -182,9 +206,10 @@ This pattern is worth remembering.
 
 ---
 
-## 🚀 Installation
+## Installation
 
-**Dead simple. Two commands:**
+**Two commands:**
+
 ```bash
 # Step 1: Add the marketplace
 /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
@@ -198,46 +223,73 @@ This pattern is worth remembering.
 /nemp:list
 ```
 
+---
+
+## Troubleshooting
+
 <details>
-<summary><strong>Troubleshooting</strong></summary>
+<summary><strong>Commands not working?</strong></summary>
 
-**Commands not working?**
-- Restart Claude Code completely
-- Check: `/plugin list` to see if `nemp` loaded
-- Verify version: Must use Claude Code v2.0+
+1. **Restart Claude Code completely** - Close and reopen the terminal
+2. **Check if plugin loaded:** `/plugin list` - Look for `nemp` in the list
+3. **Verify Claude Code version:** Must be v2.0 or higher
 
-**Still broken?**
-- Remove old version: `/plugin uninstall nemp`
-- Delete cache: `rm -rf ~/.claude/plugins/nemp*`
-- Reinstall fresh
+</details>
+
+<details>
+<summary><strong>Plugin not loading?</strong></summary>
+
+1. Remove the marketplace entry and re-add:
+   ```bash
+   /plugin marketplace remove nemp
+   /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+   /plugin install nemp
+   ```
+
+2. Clear plugin cache:
+   ```bash
+   rm -rf ~/.claude/plugins/nemp*
+   ```
+
+3. Reinstall fresh
+
+</details>
+
+<details>
+<summary><strong>Uninstall Nemp</strong></summary>
+
+**Remove the plugin:**
+```bash
+/plugin uninstall nemp
+/plugin marketplace remove nemp
+```
+
+**Delete all Nemp data (optional):**
+```bash
+# Remove project memories (run in each project)
+rm -rf .nemp
+
+# Remove global memories
+rm -rf ~/.nemp
+
+# Clear plugin cache
+rm -rf ~/.claude/plugins/nemp*
+```
+
+</details>
+
+<details>
+<summary><strong>Still having issues?</strong></summary>
+
+- Check GitHub Issues: [github.com/SukinShetty/Nemp-memory/issues](https://github.com/SukinShetty/Nemp-memory/issues)
+- Email: [contact@nemp.dev](mailto:contact@nemp.dev)
 
 </details>
 
 ---
 
-## 📊 Nemp vs Other Memory Plugins
+## Quick Commands
 
-| Feature | claude-mem | claude-memory-plugin | supermemory | Nemp |
-|---------|------------|----------------------|-------------|------|
-| **Setup Steps** | 10+ (MCP + web UI) | 8+ (Ollama + Bun) | 5+ (API key) | **1 command** ✅ |
-| **Dependencies** | SQLite, web server | Ollama, Bun, embeddings | Cloud account | **None** ✅ |
-| **Requires Cloud** | ❌ | ❌ | ✅ | **❌** |
-| **Requires API Key** | ❌ | ❌ | ✅ | **❌** |
-| **Storage** | SQLite database | Complex files | Cloud | **Plain JSON** ✅ |
-| **Data Privacy** | Local | Local | Sent to servers | **100% Local** ✅ |
-| **Auto-detect stack** | ❌ | ❌ | ❌ | **✅ Yes** |
-| **Proactive suggestions** | ❌ | ❌ | ❌ | **✅ Yes** |
-| **Human-readable** | ❌ (binary DB) | ⚠️ (embeddings) | ❌ (cloud) | **✅ (JSON)** |
-| **Works Offline** | ✅ | ✅ | ❌ | **✅** |
-| **Learning curve** | Steep | Steep | Medium | **Flat** ✅ |
-| **Cost** | Free | Free | $19/month | **Free** ✅ |
-| **Best for** | Power users | Advanced users | Cloud users | **Everyone** ✅ |
-
-**Simple doesn't mean limited.** Nemp has features others don't — without the complexity, cloud dependency, or cost.
-
----
-
-## 📚 Quick Commands
 ```bash
 # Get Started
 /nemp:init                    # Auto-detect stack (unique!)
@@ -264,7 +316,7 @@ This pattern is worth remembering.
 
 ---
 
-## 💡 Real Use Cases
+## Real Use Cases
 
 ### Onboarding New Developers
 ```bash
@@ -272,12 +324,12 @@ This pattern is worth remembering.
 /nemp:init
 
 # Claude instantly knows:
-✓ Tech stack
-✓ Database setup
-✓ Auth approach
-✓ Project structure
+- Tech stack
+- Database setup
+- Auth approach
+- Project structure
 
-Time saved: 2 hours → 2 seconds
+Time saved: 2 hours -> 2 seconds
 ```
 
 ---
@@ -287,12 +339,12 @@ Time saved: 2 hours → 2 seconds
 # Project A
 cd ~/client-a
 /nemp:recall stack
-→ "Next.js, Stripe, PostgreSQL"
+-> "Next.js, Stripe, PostgreSQL"
 
 # Project B
 cd ~/client-b
 /nemp:recall stack
-→ "React, Supabase, Tailwind"
+-> "React, Supabase, Tailwind"
 
 Each project remembers itself.
 ```
@@ -305,20 +357,22 @@ Each project remembers itself.
 
 # 3 months later:
 /nemp:context api
-→ Instant recall, no Slack archaeology
+-> Instant recall, no Slack archaeology
 ```
 
 ---
 
-## 🔒 Privacy & Storage
+## Privacy & Storage
 
 **Everything local. No cloud. No tracking.**
+
 ```
 .nemp/
-├── memories.json          # Your project memories
-└── activity.log           # Activity tracking (optional)
+  memories.json          # Your project memories
+  activity.log           # Activity tracking (optional)
+
 ~/.nemp/
-└── memories.json          # Global memories
+  memories.json          # Global memories
 ```
 
 **Human-readable JSON:**
@@ -345,7 +399,7 @@ rm -rf .nemp
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Want to add framework detection or improve suggestions?
 
@@ -356,11 +410,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 - Improve suggestion algorithms
 - Build import/export features
 
-**Questions?** Email us at [contact@nemp.dev](mailto:contact@nemp.dev)
+---
+
+## Support
+
+- **GitHub Issues:** [Report bugs or request features](https://github.com/SukinShetty/Nemp-memory/issues)
+- **Email:** [contact@nemp.dev](mailto:contact@nemp.dev)
+- **Discord:** Coming Soon
 
 ---
 
-## 📜 License
+## License
 
 MIT © 2026 [Sukin Shetty](https://github.com/SukinShetty)
 
@@ -368,16 +428,16 @@ Open source. Free forever. Use however you want.
 
 ---
 
-## ⭐ Support This Project
+## Support This Project
 
-**If Nemp saves you time, give it a star!** ⭐
+**If Nemp saves you time, give it a star!**
 
 Star count helps other developers discover Nemp.
 
 ---
 
 <div align="center">
-  <p>Built with ❤️ by <a href="https://www.linkedin.com/in/sukinshetty-1984/">Sukin Shetty</a></p>
+  <p>Built with care by <a href="https://www.linkedin.com/in/sukinshetty-1984/">Sukin Shetty</a></p>
   <p>
     <a href="https://www.linkedin.com/in/sukinshetty-1984/">LinkedIn</a> •
     <a href="https://x.com/sukin_s">X/Twitter</a> •
