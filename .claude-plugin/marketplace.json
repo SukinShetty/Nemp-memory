@@ -4,7 +4,7 @@
   "description": "Nemp Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects. Save, recall, and manage memories that persist between conversations.",
   "owner": {
     "name": "Sukin Shetty",
-    "email": "sukinshetty@gmail.com"
+    "email": "contact@nemp.dev"
   },
   "plugins": [
     {
@@ -13,9 +13,9 @@
       "version": "0.1.0",
       "author": {
         "name": "Sukin Shetty",
-        "email": "sukinshetty@gmail.com"
+        "email": "contact@nemp.dev"
       },
-      "source": "./",
+      "source": "../",
       "category": "productivity",
       "homepage": "https://github.com/SukinShetty/Nemp-memory",
       "license": "MIT",
