@@ -54,7 +54,8 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 7-12. More configuration...
 
 # Nemp:
-1. /plugin install https://github.com/SukinShetty/Nemp-memory
+1. /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+2. /plugin install nemp
 ✅ Done.
 ```
 
@@ -183,18 +184,16 @@ This pattern is worth remembering.
 
 ## 🚀 Installation
 
-**Dead simple. One command:**
+**Dead simple. Two commands:**
 ```bash
-/plugin install https://github.com/SukinShetty/Nemp-memory
+# Step 1: Add the marketplace
+/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
+
+# Step 2: Install the plugin
+/plugin install nemp
 ```
 
-**Restart Claude Code:**
-```bash
-exit
-claude
-```
-
-**Verify:**
+**Verify it's working:**
 ```bash
 /nemp:list
 ```
