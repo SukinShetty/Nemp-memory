@@ -8,5 +8,7 @@
     "url": "https://github.com/SukinShetty"
   },
   "homepage": "https://github.com/SukinShetty/Nemp-memory",
-  "license": "MIT"
+  "license": "MIT",
+  "commands": "../commands",
+  "hooks": "../hooks"
 }
