@@ -2,8 +2,24 @@
   "name": "nemp",
   "version": "0.1.0",
   "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
-  "author": "Sukin Shetty",
+  "author": {
+    "name": "Sukin Shetty",
+    "email": "contact@nemp.dev",
+    "url": "https://github.com/SukinShetty"
+  },
   "homepage": "https://github.com/SukinShetty/Nemp-memory",
-  "license": "MIT",
-  "keywords": ["memory", "context", "persistence", "productivity"]
+  "commands": [
+    "init",
+    "save",
+    "recall",
+    "list",
+    "forget",
+    "save-global",
+    "recall-global",
+    "list-global",
+    "auto-capture",
+    "activity",
+    "context",
+    "suggest"
+  ]
 }
