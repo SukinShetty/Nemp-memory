@@ -232,7 +232,7 @@ Recent Activity:
 
 **Inside Claude Code:**
 ```bash
-/plugin install nemp@https://github.com/SukinShetty/Nemp-memory
+/plugin install https://github.com/SukinShetty/Nemp-memory
 ```
 
 **Restart Claude Code, then verify:**
