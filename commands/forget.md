@@ -71,14 +71,35 @@ If confirmed:
 2. Filter out the memory with the matching key
 3. Write the updated array back to the file
 
-### 5. Confirm to User
+### 5. Auto-Sync to CLAUDE.md (if enabled)
+
+After deleting the memory, check if auto-sync is enabled:
+
+```bash
+[ -f ".nemp/config.json" ] && cat .nemp/config.json
+```
+
+If `autoSync` is `true` in the config:
+
+1. Read all remaining memories from `.nemp/memories.json`
+2. Regenerate the Nemp markdown section (same format as `/nemp:export`)
+3. Update CLAUDE.md:
+   - **If CLAUDE.md exists with Nemp section:** Replace the section with updated memories
+   - **If no memories remain:** Remove the Nemp section from CLAUDE.md entirely, or leave a minimal section
+
+4. Include in the confirmation: `CLAUDE.md updated`
+
+### 6. Confirm to User
 
 ```
-✓ Memory deleted: <key>
+Memory deleted: <key>
   Remaining memories: N
+  CLAUDE.md updated     <-- only show if auto-sync is enabled
 ```
 
-### 6. Handle Multiple Matches
+**If auto-sync is disabled:** Do not update CLAUDE.md, do not show the note.
+
+### 7. Handle Multiple Matches
 
 If the same key exists in BOTH project and global storage (rare):
 ```
@@ -119,6 +140,7 @@ User: `/nemp:forget old-api-endpoint`
 
 User confirms →
 ```
-✓ Memory deleted: old-api-endpoint
+Memory deleted: old-api-endpoint
   Remaining memories: 4
+  CLAUDE.md updated     <-- only if auto-sync is enabled
 ```
