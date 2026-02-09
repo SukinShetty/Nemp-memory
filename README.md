@@ -7,7 +7,7 @@
     </tr>
   </table>
 
-  <p><strong>100% Local Memory for Claude Code • Privacy-First • Zero Setup</strong></p>
+  <p><strong>Smart memory for AI agents — Claude Code & OpenClaw</strong></p>
 
   <p>
     <img src="https://img.shields.io/badge/100%25-Local-brightgreen.svg" alt="100% Local">
@@ -15,6 +15,7 @@
     <img src="https://img.shields.io/badge/No_API_Key-Needed-blue.svg" alt="No API Key">
     <img src="https://img.shields.io/badge/Privacy-First-purple.svg" alt="Privacy First">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
+    <a href="https://openclaw.ai"><img src="https://img.shields.io/badge/OpenClaw-Compatible-purple.svg" alt="OpenClaw"></a>
   </p>
 
   <br/>
@@ -54,6 +55,8 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 ```
 
 **Zero dependencies. No cloud. No API keys. Plain JSON files. Just works.**
+
+**Cross-platform:** Works on Claude Code, OpenClaw, and any AgentSkills-compatible platform. One memory store, multiple agents.
 
 | Feature | Other Plugins | Nemp |
 |---------|---------------|------|
@@ -307,7 +310,7 @@ Nemp reads all your saved memories, organizes them by category, and writes a cle
 
 ## Installation
 
-**Two commands:**
+### Method 1: Plugin Marketplace (Recommended)
 
 ```bash
 # Step 1: Add the marketplace
@@ -317,10 +320,45 @@ Nemp reads all your saved memories, organizes them by category, and writes a cle
 /plugin install nemp
 ```
 
+### Method 2: Windows Users (If Method 1 Fails)
+
+Windows sometimes has issues with the marketplace command due to path handling. If you see errors like `ENOENT` or `spawn git ENOENT`, try this:
+
+```bash
+# Use the full GitHub URL directly
+/plugin marketplace add https://github.com/SukinShetty/Nemp-memory.git
+
+# Then install
+/plugin install nemp
+```
+
+If that still fails, use Method 3 below.
+
+### Method 3: Manual Installation (Git Clone)
+
+For users who encounter persistent marketplace issues:
+
+```bash
+# Step 1: Navigate to Claude's plugins directory
+cd ~/.claude/plugins/marketplaces
+
+# Step 2: Clone the repository directly
+git clone https://github.com/SukinShetty/Nemp-memory.git nemp-memory
+
+# Step 3: Restart Claude Code
+exit
+claude
+
+# Step 4: Install the plugin
+/plugin install nemp
+```
+
 **Verify it's working:**
 ```bash
 /nemp:list
 ```
+
+You should see "No memories saved yet" or a list of your memories.
 
 ---
 
@@ -611,6 +649,56 @@ rm -rf ~/.nemp
 /nemp:auto-capture on/off     # Enable tracking
 /nemp:activity                # View log
 ```
+
+---
+
+## Works on OpenClaw
+
+Nemp Memory runs natively as an OpenClaw skill. Same persistent memory, same commands, different platform.
+
+<p align="center">
+  <img src="assets/images/nemp-openclaw-telegram.jpeg" alt="Nemp running on OpenClaw via Telegram" width="400"/>
+</p>
+
+### Setup (30 seconds)
+
+**1. Copy Nemp into OpenClaw's workspace skills:**
+
+```bash
+git clone https://github.com/SukinShetty/Nemp-memory.git <your-openclaw-workspace>/skills/nemp-memory
+```
+
+Default workspace path:
+- **Windows:** `C:\Users\<you>\.openclaw\workspace\skills\nemp-memory`
+- **macOS/Linux:** `~/.openclaw/workspace/skills/nemp-memory`
+
+**2. Add the SKILL.md** (required for OpenClaw to recognize the skill):
+
+The `SKILL.md` file is included in the repo. If it's missing, create one at the root of the nemp-memory folder:
+
+```yaml
+---
+name: nemp-memory
+description: Persistent local memory for AI agents. Save, recall, and search project decisions as local JSON. Zero cloud, zero infrastructure.
+metadata: {"openclaw": {"always": true}}
+---
+```
+
+**3. Restart OpenClaw** and verify:
+
+```
+Do you see nemp-memory in your skills?
+```
+
+### That's it.
+
+Save memories from Claude Code → recall them from OpenClaw.
+Save from OpenClaw → recall from Claude Code.
+Same `.nemp/memories.json`. Same commands. Zero cloud.
+
+### Why this works
+
+OpenClaw uses the same [AgentSkills](https://agentskills.io) standard as Claude Code. Nemp's memory commands are plain file operations on local JSON — no platform-specific APIs. If your agent can read and write files, Nemp works.
 
 ---
 
