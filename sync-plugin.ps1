@@ -1,8 +1,8 @@
 # Nemp Memory Plugin Sync Script
 # Syncs development files to BOTH Claude Code marketplace and cache folders
 
-$SourceCommands = "C:\Users\SukinShetty\Nemp-memory\commands"
-$SourceHooks = "C:\Users\SukinShetty\Nemp-memory\.claude-plugin\hooks"
+$SourceCommands = "C:\Users\SukinShetty\OneDrive - Kambaa\Cursor Projects\Nemp-memory\commands"
+$SourceHooks = "C:\Users\SukinShetty\OneDrive - Kambaa\Cursor Projects\Nemp-memory\.claude-plugin\hooks"
 
 # Destination folders
 $MarketplaceCommands = "C:\Users\SukinShetty\.claude\plugins\marketplaces\nemp-memory\commands"
