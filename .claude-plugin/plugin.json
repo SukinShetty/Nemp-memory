@@ -1,12 +1,13 @@
 {
-  "name": "nemp",
-  "version": "0.1.0",
-  "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
+  "name": "nemp-memory",
+  "version": "0.2.0",
+  "description": "Persistent local memory for Claude Code agents. Auto-detects your tech stack, remembers decisions across sessions, and shares context between agents. 100% local, zero cloud, plain JSON. Tracks which agent wrote what with full audit logs.",
   "author": {
     "name": "Sukin Shetty",
     "email": "contact@nemp.dev",
     "url": "https://github.com/SukinShetty"
   },
-  "homepage": "https://github.com/SukinShetty/Nemp-memory",
+  "homepage": "https://nemp.dev",
+  "repository": "https://github.com/SukinShetty/Nemp-memory",
   "license": "MIT"
 }
