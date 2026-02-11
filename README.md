@@ -76,6 +76,19 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 
 ---
 
+## What's New in v0.2.0
+
+| Feature | Description |
+|---------|-------------|
+| **Agent ID Tracking** | Every memory records which agent wrote it — `main`, `nemp-init`, `backend`, etc. |
+| **Access Logs** | All read/write/delete operations logged to `.nemp/access.log` with timestamps and agent names |
+| **`/nemp:log` Command** | View the full audit trail. Filter by agent, tail recent entries, or clear the log |
+| **Token Compression** | `/nemp:save` compresses values before storing — ~70% smaller, preserves all technical terms |
+| **`/nemp:init` Optimized** | Single bash scan, reads only `package.json`, writes all memories in one operation |
+| **MEMORY.md Index** | Auto-generated index at `.nemp/MEMORY.md` with agent attribution and quick overview |
+
+---
+
 ## 6 Features That Set Nemp Apart
 
 ### 1️⃣ Auto-Init: One Command Learns Everything
@@ -641,6 +654,11 @@ rm -rf ~/.nemp
 /nemp:sync                    # Two-way sync with CLAUDE.md
 /nemp:export                  # Generate CLAUDE.md from memories
 
+# Audit Trail (v0.2.0)
+/nemp:log                     # View access log (reads, writes, deletes)
+/nemp:log --agent backend     # Filter by agent
+/nemp:log --tail 50           # Show last 50 entries
+
 # Global (Cross-Project)
 /nemp:save-global <key> <value>
 /nemp:list-global
@@ -755,6 +773,9 @@ Each project remembers itself.
 ```
 .nemp/
   memories.json          # Your project memories
+  access.log             # Read/write/delete audit trail
+  config.json            # Plugin configuration
+  MEMORY.md              # Auto-generated memory index
   activity.log           # Activity tracking (optional)
 
 ~/.nemp/
@@ -766,7 +787,9 @@ Each project remembers itself.
 {
   "key": "auth-provider",
   "value": "NextAuth.js with JWT",
-  "created": "2026-01-31T12:00:00Z"
+  "created": "2026-01-31T12:00:00Z",
+  "updated": "2026-02-11T14:00:00Z",
+  "agent_id": "nemp-init"
 }
 ```
 
