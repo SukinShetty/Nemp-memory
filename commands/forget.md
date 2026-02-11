@@ -8,10 +8,8 @@ argument-hint: "<key> [--force]"
 Delete a memory by key.
 
 ## Usage
-```
 /nemp:forget <key>
 /nemp:forget <key> --force   # Skip confirmation
-```
 
 ## Arguments
 - `key`: The exact key of the memory to delete
@@ -23,7 +21,6 @@ When the user invokes `/nemp:forget`, follow these steps:
 ### 1. Find the Memory
 
 Search for the memory in both storage locations:
-
 ```bash
 # Check project memories
 [ -f ".nemp/memories.json" ] && cat .nemp/memories.json
@@ -35,30 +32,25 @@ Search for the memory in both storage locations:
 ### 2. Handle Not Found
 
 If no memory with that key exists:
-```
 ❌ Memory not found: "<key>"
-
 Did you mean one of these?
-  - auth-flow
-  - auth-config
-  - user-auth-prefs
 
-Use `/nemp:list` to see all available keys.
-```
+auth-flow
+auth-config
+user-auth-prefs
+
+Use /nemp:list to see all available keys.
 
 ### 3. Confirm Deletion (unless --force)
 
 Show the memory content and ask for confirmation:
-```
 ⚠️  Delete this memory?
-
-  Key: <key>
-  Value: "<full-value>"
-  Created: <date>
-  Source: project/global
-
+Key: <key>
+Value: "<full-value>"
+Agent: <agent_id who wrote it>
+Created: <date>
+Source: project/global
 Type 'yes' to confirm, or 'no' to cancel.
-```
 
 Use the AskUserQuestion tool with options:
 - "Yes, delete it"
@@ -71,7 +63,12 @@ If confirmed:
 2. Filter out the memory with the matching key
 3. Write the updated array back to the file
 
-### 5. Check Auto-Sync Config (REQUIRED)
+### 5. Log the Delete Operation
+```bash
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] DELETE key=<key> agent=${CLAUDE_AGENT_NAME:-main}" >> .nemp/access.log
+```
+
+### 6. Check Auto-Sync Config (REQUIRED)
 
 **IMPORTANT: This step is MANDATORY. Always check and execute auto-sync if enabled.**
 
@@ -82,15 +79,15 @@ After deleting the memory, read the config file:
 
 If `.nemp/config.json` exists and contains `"autoSync": true`:
 
-**5a. Read all remaining memories** from `.nemp/memories.json`
+**6a. Read all remaining memories** from `.nemp/memories.json`
 
-**5b. Group memories by category** using these rules:
+**6b. Group memories by category** using these rules:
 - Keys containing "project", "workspace" → "Project Info"
 - Keys containing "stack", "storage", "structure" → "Technical Details"
 - Keys containing "feature", "command" → "Features"
 - All other keys → "Other"
 
-**5c. Generate CLAUDE.md content:**
+**6c. Generate CLAUDE.md content:**
 ```markdown
 ## Project Context (via Nemp Memory)
 
@@ -105,36 +102,35 @@ If `.nemp/config.json` exists and contains `"autoSync": true`:
 ---
 ```
 
-**5d. Update CLAUDE.md:**
+**6d. Update CLAUDE.md:**
 - If CLAUDE.md exists with `## Project Context (via Nemp Memory)`: Replace everything from that heading to the next `---` (inclusive)
 - If no memories remain: Remove the Nemp section entirely or leave a minimal placeholder
 
-**5e. Set `syncPerformed = true`** for the confirmation message
+**6e. Set `syncPerformed = true`** for the confirmation message
 
-### 6. Confirm to User
+### 7. Update MEMORY.md Index
 
-```
+Regenerate `.nemp/MEMORY.md` with the remaining memories (same format as init.md Step 7).
+
+### 8. Confirm to User
 ✓ Memory deleted: <key>
-  Remaining memories: N
-  ✓ CLAUDE.md synced    <-- only show if syncPerformed is true
-```
+Remaining memories: N
+✓ MEMORY.md updated
+✓ CLAUDE.md synced    ← only if auto-sync enabled
 
 **If auto-sync is disabled or config doesn't exist:** Do not update CLAUDE.md, do not show the sync note.
 
 ### 7. Handle Multiple Matches
 
 If the same key exists in BOTH project and global storage (rare):
-```
 ⚠️  Found "<key>" in multiple locations:
 
-1. Project (.nemp/memories.json)
-   Value: "<value>"
-
-2. Global (~/.nemp/memories.json)
-   Value: "<value>"
+Project (.nemp/memories.json)
+Value: "<value>"
+Global (~/.nemp/memories.json)
+Value: "<value>"
 
 Which would you like to delete?
-```
 
 Use AskUserQuestion with options:
 - "Delete from project only"
@@ -150,19 +146,13 @@ Use AskUserQuestion with options:
 ## Example
 
 User: `/nemp:forget old-api-endpoint`
-
-```
 ⚠️  Delete this memory?
-
-  Key: old-api-endpoint
-  Value: "The legacy API was at api.example.com/v1"
-  Created: 2024-01-05T08:00:00Z
-  Source: project (.nemp/memories.json)
-```
+Key: old-api-endpoint
+Value: "The legacy API was at api.example.com/v1"
+Created: 2024-01-05T08:00:00Z
+Source: project (.nemp/memories.json)
 
 User confirms →
-```
 Memory deleted: old-api-endpoint
-  Remaining memories: 4
-  CLAUDE.md updated     <-- only if auto-sync is enabled
-```
+Remaining memories: 4
+CLAUDE.md updated     <-- only if auto-sync is enabled

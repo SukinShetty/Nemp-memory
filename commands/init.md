@@ -11,45 +11,25 @@ Intelligently scan your project and auto-save context as memories.
 
 You are an intelligent project analyzer. Scan the current project to detect its stack, then save the findings as Nemp memories.
 
-### Step 1: Scan for project files
+### Step 1: Lightweight Scan (Token Optimized)
 
-Check which configuration files exist:
-
+**IMPORTANT: Use minimal token consumption. Only read essential files. Run ONE combined check.**
 ```bash
-[ -f "package.json" ] && echo "FOUND: package.json"
-[ -f "tsconfig.json" ] && echo "FOUND: TypeScript config"
-[ -f "next.config.js" ] || [ -f "next.config.mjs" ] || [ -f "next.config.ts" ] && echo "FOUND: Next.js config"
-[ -f "vite.config.ts" ] || [ -f "vite.config.js" ] && echo "FOUND: Vite config"
-[ -f "nuxt.config.ts" ] && echo "FOUND: Nuxt config"
-[ -f "astro.config.mjs" ] && echo "FOUND: Astro config"
-[ -f "remix.config.js" ] && echo "FOUND: Remix config"
-[ -f "svelte.config.js" ] && echo "FOUND: SvelteKit config"
-[ -f "angular.json" ] && echo "FOUND: Angular config"
-[ -f "requirements.txt" ] || [ -f "pyproject.toml" ] && echo "FOUND: Python project"
-[ -f "Cargo.toml" ] && echo "FOUND: Rust project"
-[ -f "go.mod" ] && echo "FOUND: Go project"
-[ -f "Gemfile" ] && echo "FOUND: Ruby project"
-[ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ] && echo "FOUND: Docker Compose"
-[ -f "Dockerfile" ] && echo "FOUND: Dockerfile"
-[ -f ".env" ] || [ -f ".env.local" ] || [ -f ".env.example" ] && echo "FOUND: Environment files"
+echo "=== FILES ===" && ls package.json tsconfig.json next.config.* vite.config.* nuxt.config.* astro.config.* svelte.config.* angular.json requirements.txt pyproject.toml Cargo.toml go.mod Gemfile docker-compose.* Dockerfile .env .env.local .env.example 2>/dev/null && echo "=== LOCKFILE ===" && ls package-lock.json yarn.lock pnpm-lock.yaml bun.lockb 2>/dev/null && echo "=== DIRS ===" && ls -d app pages src/app components/ui 2>/dev/null
 ```
 
-### Step 2: Detect package manager
+**DO NOT** run multiple separate file-existence checks. One command, all checks.
 
+### Step 2: Read package.json ONLY (if exists)
+
+**IMPORTANT: This is the ONLY file you need to read for detection. DO NOT read README.md, .env files, or scan directories.**
 ```bash
-[ -f "package-lock.json" ] && echo "PACKAGE_MANAGER: npm"
-[ -f "yarn.lock" ] && echo "PACKAGE_MANAGER: yarn"
-[ -f "pnpm-lock.yaml" ] && echo "PACKAGE_MANAGER: pnpm"
-[ -f "bun.lockb" ] && echo "PACKAGE_MANAGER: bun"
+[ -f "package.json" ] && cat package.json
 ```
 
-### Step 3: Parse package.json (if exists)
+From package.json, detect everything using the tables in Step 3.
 
-If package.json exists, read and analyze it:
-
-```bash
-cat package.json
-```
+### Step 3: Parse package.json
 
 **Detect Framework** from dependencies or devDependencies:
 | Package | Framework |
@@ -131,217 +111,122 @@ cat package.json
 | `@tanstack/react-query` | TanStack Query |
 | `swr` | SWR |
 
-### Step 4: Check framework-specific patterns
+### Step 4: Display Summary
 
-**For Next.js projects:**
+Show a compact summary:
+🔍 NEMP PROJECT SCAN
+Project: [name from package.json]
+Framework: [detected]
+Language: [TypeScript/JavaScript]
+Database: [detected or "none detected"]
+Auth: [detected or "none detected"]
+Styling: [detected or "none detected"]
+Testing: [detected or "none detected"]
+Package Manager: [npm/yarn/pnpm/bun from lockfile in Step 1]
+
+### Step 5: Save ALL Memories in ONE Write
+
+**CRITICAL: Do NOT call /nemp:save individually for each memory. Build the full JSON object and write once.**
+
+Only include keys for things actually detected. Compress all values to under 100 characters.
+```json
+{
+  "stack": {
+    "value": "Next.js 14 + TypeScript + Prisma + PostgreSQL + Tailwind",
+    "created": "<ISO-8601>",
+    "updated": "<ISO-8601>",
+    "agent_id": "nemp-init",
+    "tags": ["auto-detected"]
+  },
+  "framework": {
+    "value": "Next.js 14, App Router",
+    "created": "<ISO-8601>",
+    "updated": "<ISO-8601>",
+    "agent_id": "nemp-init",
+    "tags": ["auto-detected"]
+  },
+  "database": {
+    "value": "PostgreSQL via Prisma",
+    "created": "<ISO-8601>",
+    "updated": "<ISO-8601>",
+    "agent_id": "nemp-init",
+    "tags": ["auto-detected"]
+  }
+}
+```
+
+Write this to `.nemp/memories.json` in a single operation:
 ```bash
-[ -d "app" ] && echo "ROUTER: App Router (Next.js 13+)"
-[ -d "pages" ] && echo "ROUTER: Pages Router"
-[ -d "app/api" ] && echo "FEATURE: API Routes"
-[ -d "src/app" ] && echo "STRUCTURE: src directory"
-ls app/actions 2>/dev/null && echo "FEATURE: Server Actions"
+mkdir -p .nemp
 ```
 
-**For monorepos:**
+Then use the Write tool to save the complete JSON.
+
+If `.nemp/memories.json` already exists, merge: preserve existing keys, only add/update detected keys.
+
+### Step 6: Log the Init Operation
 ```bash
-[ -f "turbo.json" ] && echo "MONOREPO: Turborepo"
-[ -d "packages" ] && echo "STRUCTURE: packages directory"
-[ -f "lerna.json" ] && echo "MONOREPO: Lerna"
-[ -f "nx.json" ] && echo "MONOREPO: Nx"
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] INIT agent=nemp-init memories_saved=<count>" >> .nemp/access.log
 ```
 
-**Check for UI components:**
-```bash
-[ -d "components/ui" ] && echo "UI: shadcn/ui components detected"
-[ -d "src/components" ] && echo "STRUCTURE: components in src"
+### Step 7: Generate MEMORY.md Index
+
+Create or update `.nemp/MEMORY.md`:
+```markdown
+# Nemp Memory Index
+
+> Auto-generated. Last updated: [YYYY-MM-DD HH:MM]
+
+## Stored Memories
+
+| Key | Preview | Agent | Updated |
+|-----|---------|-------|---------|
+| stack | Next.js 14 + TypeScript... | nemp-init | 2026-02-11 |
+| database | PostgreSQL via Prisma | nemp-init | 2026-02-11 |
+| auth | NextAuth.js with JWT | nemp-init | 2026-02-11 |
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `memories.json` | All stored memories (key-value pairs) |
+| `access.log` | Read/write audit trail |
+| `config.json` | Plugin configuration |
+| `MEMORY.md` | This index file |
 ```
 
-### Step 5: Read README.md for project description
+### Step 8: Check Auto-Sync Config (REQUIRED)
 
-If README.md exists, extract the first meaningful paragraph:
-```bash
-head -n 20 README.md
-```
-
-Use this to understand what the project does.
-
-### Step 6: Check for environment variables
-
-If .env.example or .env.local exists:
-```bash
-cat .env.example 2>/dev/null || cat .env.local 2>/dev/null | grep -v "^#" | grep "=" | cut -d'=' -f1
-```
-
-This shows what environment variables the project needs (without exposing values).
-
-### Step 7: Display findings and confirm
-
-Show the user a summary in this format:
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║                    🔍 NEMP PROJECT SCAN                      ║
-╠══════════════════════════════════════════════════════════════╣
-║  Project: [name from package.json]                           ║
-║  Description: [from README or package.json]                  ║
-╠══════════════════════════════════════════════════════════════╣
-║  📦 Package Manager: [npm/yarn/pnpm/bun]                     ║
-║  🔧 Language: [TypeScript/JavaScript]                        ║
-║  ⚛️  Framework: [Next.js/React/Vue/etc]                       ║
-║  🗄️  Database: [Prisma + PostgreSQL/etc]                      ║
-║  🔐 Auth: [NextAuth/Clerk/etc]                               ║
-║  🎨 Styling: [Tailwind/etc]                                  ║
-║  🧪 Testing: [Vitest/Jest/etc]                               ║
-╠══════════════════════════════════════════════════════════════╣
-║  Detected patterns:                                          ║
-║  • App Router with Server Components                         ║
-║  • API routes in app/api                                     ║
-║  • shadcn/ui components                                      ║
-╚══════════════════════════════════════════════════════════════╝
-```
-
-### Step 8: Save memories
-
-After showing the summary, save each finding as a memory. Only save what was actually detected.
-
-**Required memories to save:**
-
-1. **stack** - Complete tech stack summary
-```
-/nemp:save stack [Framework] with [Language], [Database], [Styling], [Auth]
-```
-Example: `/nemp:save stack Next.js 14 with TypeScript, Prisma + PostgreSQL, Tailwind CSS, NextAuth`
-
-2. **framework** - Primary framework details
-```
-/nemp:save framework [Framework name and version if detectable, plus router type]
-```
-Example: `/nemp:save framework Next.js 14 using App Router with Server Components`
-
-3. **database** - Database and ORM
-```
-/nemp:save database [ORM] with [Database]
-```
-Example: `/nemp:save database Prisma ORM with PostgreSQL`
-
-4. **auth** - Authentication method
-```
-/nemp:save auth [Auth solution and any notable config]
-```
-Example: `/nemp:save auth NextAuth.js with Google and GitHub providers`
-
-5. **styling** - Styling approach
-```
-/nemp:save styling [Styling solution and any UI library]
-```
-Example: `/nemp:save styling Tailwind CSS with shadcn/ui components`
-
-6. **package-manager** - How to install/run
-```
-/nemp:save package-manager [manager] - use [manager] for all commands
-```
-Example: `/nemp:save package-manager pnpm - use pnpm for all install and run commands`
-
-7. **testing** - Testing setup (if detected)
-```
-/nemp:save testing [Test framework and approach]
-```
-Example: `/nemp:save testing Vitest with React Testing Library`
-
-8. **project-description** - What the project does
-```
-/nemp:save project-description [Brief description from README]
-```
-
-### Step 9: Check Auto-Sync Config (REQUIRED)
-
-**IMPORTANT: This step is MANDATORY. Always check and execute auto-sync if enabled.**
-
-After saving all memories, read the config file:
+After saving all memories, check:
 ```bash
 [ -f ".nemp/config.json" ] && cat .nemp/config.json
 ```
 
-If `.nemp/config.json` exists and contains `"autoSync": true`:
+If `"autoSync": true`, generate and update CLAUDE.md with all memories grouped by category. Same logic as save.md.
 
-**9a. Read all memories** from `.nemp/memories.json`
-
-**9b. Group memories by category** using these rules:
-- Keys containing "project", "workspace" → "Project Info"
-- Keys containing "stack", "framework", "database", "auth", "styling", "testing", "package-manager" → "Tech Stack"
-- Keys containing "feature", "command" → "Features"
-- All other keys → "Other"
-
-**9c. Generate CLAUDE.md content:**
-```markdown
-## Project Context (via Nemp Memory)
-
-> Auto-generated by Nemp Memory. Last updated: [YYYY-MM-DD HH:MM]
-
-### Project Info
-
-| Key | Value |
-|-----|-------|
-| **project-name** | Project name here |
-
-### Tech Stack
-
-| Key | Value |
-|-----|-------|
-| **stack** | Next.js 14 with TypeScript... |
-| **framework** | Next.js 14 using App Router |
-
----
-```
-
-**9d. Update CLAUDE.md:**
-- If CLAUDE.md does NOT exist: Create it with the generated content
-- If CLAUDE.md exists with `## Project Context (via Nemp Memory)`: Replace everything from that heading to the next `---` (inclusive)
-- If CLAUDE.md exists without Nemp section: Append the generated content at the end
-
-**9e. Set `syncPerformed = true`** for the completion message
-
-### Step 10: Show completion message
-
-After saving, display:
-
-```
-Nemp initialized! Saved [X] memories:
-
-  • stack: Next.js 14 with TypeScript, Prisma + PostgreSQL...
-  • framework: Next.js 14 using App Router...
-  • database: Prisma ORM with PostgreSQL
-  • auth: NextAuth.js with Google provider
-  • styling: Tailwind CSS with shadcn/ui
-  • package-manager: pnpm
-  • testing: Vitest with React Testing Library
-  • project-description: A SaaS starter kit for...
-
-  ✓ CLAUDE.md synced    <-- only show if syncPerformed is true
-
-Run /nemp:list to see all memories.
-Run /nemp:recall stack to recall your tech stack anytime!
-```
-
-**If auto-sync is disabled or config doesn't exist:** Do not update CLAUDE.md, do not show the sync note.
+### Step 9: Show Completion
+✓ Nemp initialized! Saved [X] memories.
+stack: Next.js 14 + TypeScript + Prisma...
+database: PostgreSQL via Prisma
+auth: NextAuth.js with JWT
+styling: Tailwind CSS
+package-manager: pnpm
+✓ MEMORY.md index generated
+✓ CLAUDE.md synced    ← only if auto-sync enabled
+/nemp:list        View all memories
+/nemp:context     Search by keyword
 
 ## Important Notes
 
-- Only save memories for things that were actually detected
-- Be specific - "Next.js 14 with App Router" is better than just "Next.js"
-- If unsure about something, note it (e.g., "PostgreSQL (detected from DATABASE_URL)")
-- Don't overwrite existing memories without asking
-- If memories already exist, show them and ask if user wants to update
+- Only save memories for things actually detected
+- Compress values: "Next.js 14 + TypeScript" not "We are using Next.js version 14 with TypeScript"
+- If memories already exist, merge — don't overwrite without asking
+- All memories get `agent_id: "nemp-init"` and `tags: ["auto-detected"]`
 
 ## Error Handling
 
-If no package.json is found:
-```
-⚠️ No package.json found. This doesn't look like a Node.js project.
-
-Nemp can still help! Try:
-  /nemp:save stack [describe your tech stack]
-  /nemp:save language [Python/Go/Rust/etc]
-```
-
-If the project type is ambiguous, ask the user to clarify.
+If no package.json found:
+⚠️ No package.json found.
+For Python/Rust/Go projects, save manually:
+/nemp:save stack Python + FastAPI + PostgreSQL
+/nemp:save framework FastAPI with SQLAlchemy

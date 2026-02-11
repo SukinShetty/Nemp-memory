@@ -6,9 +6,7 @@ argument-hint: "<key> <value>"
 Save a memory to persistent storage.
 
 ## Usage
-```
 /nemp:save <key> <value>
-```
 
 ## Arguments
 - `key`: A unique identifier for this memory (use kebab-case, e.g., `user-prefers-bun`, `auth-flow-jwt`)
@@ -21,7 +19,24 @@ When the user invokes `/nemp:save`, follow these steps:
 ### 1. Parse Arguments
 Extract the key (first argument) and value (everything after the key).
 
-### 2. Determine Storage Location
+### 2. Compress Value (Token Optimization)
+
+**IMPORTANT: Always compress the value before storing to minimize token usage.**
+
+Apply these compression rules:
+- Remove filler words: "basically", "essentially", "the thing is", "it's worth noting"
+- Remove redundant phrases: "in order to" → "to", "due to the fact that" → "because"
+- Collapse whitespace and trim
+- Keep under 200 characters when possible — summarize longer values to their essential facts
+- Preserve all technical terms, file paths, package names, and version numbers exactly
+
+**Example compressions:**
+BEFORE: "We decided to use NextAuth.js for authentication because it integrates well with Next.js and supports multiple providers including Google and GitHub OAuth"
+AFTER:  "NextAuth.js auth with Google + GitHub OAuth providers"
+BEFORE: "The database is PostgreSQL and we access it through the Prisma ORM which handles all our migrations and schema management"
+AFTER:  "PostgreSQL via Prisma ORM (migrations + schema)"
+
+### 3. Determine Storage Location
 - **Global storage**: `~/.nemp/memories.json` (cross-project memories)
 - **Project storage**: `.nemp/memories.json` in current working directory (project-specific)
 
@@ -29,37 +44,55 @@ Default to **project storage** if inside a git repository, otherwise use global 
 
 ### 3. Read or Initialize Storage
 Use Bash to check if the storage file exists and read it:
-
 ```bash
 # For project storage
 if [ -f ".nemp/memories.json" ]; then
   cat .nemp/memories.json
 else
-  mkdir -p .nemp && echo '{"memories":[]}' > .nemp/memories.json
+  mkdir -p .nemp && echo '{}' > .nemp/memories.json
 fi
 ```
 
-### 4. Create Memory Entry
+### 5. Detect Agent Identity
+
+Determine who is saving this memory:
+```bash
+echo "${CLAUDE_AGENT_NAME:-main}"
+```
+
+Set `agent_id` to the agent name if available, otherwise `"main"`.
+
+### 6. Create Memory Entry
 Create a memory object with this structure:
 ```json
 {
   "key": "<user-provided-key>",
-  "value": "<user-provided-value>",
+  "value": "<compressed-value>",
   "created": "<ISO-8601-timestamp>",
   "updated": "<ISO-8601-timestamp>",
+  "agent_id": "<agent-name-or-main>",
   "projectPath": "<current-working-directory-or-null>",
   "tags": []
 }
 ```
 
-### 5. Update or Insert
-- If a memory with the same key exists, UPDATE it (preserve `created`, update `updated` and `value`)
+### 7. Update or Insert
+- If a memory with the same key exists, UPDATE it (preserve `created`, update `updated`, `value`, and `agent_id`)
 - If no memory with that key exists, INSERT the new memory
 
-### 6. Write Back to Storage
+### 8. Write Back to Storage
 Write the updated memories array back to the JSON file using the Write tool.
 
-### 7. Check Auto-Sync Config (REQUIRED)
+### 9. Log the Write Operation
+
+**IMPORTANT: Always log write operations for audit trail.**
+
+Append to `.nemp/access.log`:
+```bash
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] WRITE key=<key> agent=<agent_id> chars=<value_length>" >> .nemp/access.log
+```
+
+### 10. Check Auto-Sync Config (REQUIRED)
 
 **IMPORTANT: This step is MANDATORY. Always check and execute auto-sync if enabled.**
 
@@ -70,15 +103,15 @@ Read the config file to check if auto-sync is enabled:
 
 If `.nemp/config.json` exists and contains `"autoSync": true`:
 
-**7a. Read all memories** from `.nemp/memories.json`
+**10a. Read all memories** from `.nemp/memories.json`
 
-**7b. Group memories by category** using these rules:
+**10b. Group memories by category** using these rules:
 - Keys containing "project" → "Project Info"
 - Keys containing "stack", "storage", "structure" → "Technical Details"
 - Keys containing "feature", "command" → "Features"
 - All other keys → "Other"
 
-**7c. Generate CLAUDE.md content:**
+**10c. Generate CLAUDE.md content:**
 ```markdown
 ## Project Context (via Nemp Memory)
 
@@ -93,17 +126,18 @@ If `.nemp/config.json` exists and contains `"autoSync": true`:
 ---
 ```
 
-**7d. Update CLAUDE.md:**
+**10d. Update CLAUDE.md:**
 - If CLAUDE.md does NOT exist: Create it with the generated content
 - If CLAUDE.md exists with `## Project Context (via Nemp Memory)`: Replace everything from that heading to the next `---` (inclusive)
 - If CLAUDE.md exists without Nemp section: Append the generated content at the end
 
-**7e. Set `syncPerformed = true`** for the confirmation message
+**10e. Set `syncPerformed = true`** for the confirmation message
 
-### 8. Confirm to User
+### 11. Confirm to User
 
 Tell the user:
 - ✓ Memory saved: `<key>`
+- Agent: `<agent_id>`
 - Storage location: project/global
 - Total memories: N
 - If syncPerformed: `✓ CLAUDE.md synced`
@@ -113,21 +147,19 @@ Tell the user:
 User: `/nemp:save user-prefers-bun User prefers Bun over npm for package management`
 
 **Response (with auto-sync enabled):**
-```
 ✓ Memory saved: user-prefers-bun
-  Value: "User prefers Bun over npm for package management"
-  Location: .nemp/memories.json (project)
-  Total memories: 5
-  ✓ CLAUDE.md synced
-```
+Value: "Bun over npm for package management"
+Agent: main
+Location: .nemp/memories.json (project)
+Total memories: 5
+✓ CLAUDE.md synced
 
 **Response (without auto-sync):**
-```
 ✓ Memory saved: user-prefers-bun
-  Value: "User prefers Bun over npm for package management"
-  Location: .nemp/memories.json (project)
-  Total memories: 5
-```
+Value: "Bun over npm for package management"
+Agent: main
+Location: .nemp/memories.json (project)
+Total memories: 5
 
 ## Error Handling
 - If key is missing: Ask user to provide a key
