@@ -1,6 +1,6 @@
 {
-  "name": "nemp-memory",
-  "version": "0.2.0",
+  "name": "nemp",
+  "version": "0.3.0",
   "description": "Persistent local memory for Claude Code agents. Auto-detects your tech stack, remembers decisions across sessions, and shares context between agents. 100% local, zero cloud, plain JSON. Tracks which agent wrote what with full audit logs.",
   "author": {
     "name": "Sukin Shetty",
