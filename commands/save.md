@@ -76,9 +76,88 @@ Create a memory object with this structure:
 }
 ```
 
+### 6b. Auto-Type Inference
+
+After creating the base memory object, infer the memory type if not explicitly provided:
+
+**If the user passed a `--type <type>` flag**, use that value directly. Valid types: `fact`, `rule`, `preference`, `procedure`, `decision`, `assumption`, `temporary`, `goal`, `warning`, `error-pattern`, `hypothesis`.
+
+**Otherwise, apply these inference rules (first match wins):**
+- Key contains "todo", "fix", "temp" → `temporary`
+- Key contains "config", "setup" → `fact`
+- Key contains "bug", "error", "issue" → `error-pattern`
+- Key contains "goal", "milestone" → `goal`
+- Value starts with "always", "never", "must" → `rule`
+- Value starts with "try", "maybe", "consider" → `hypothesis`
+- Default: `fact`
+
+**Set `decay_rate` based on the inferred type:**
+| Type | Decay Rate |
+|------|-----------|
+| `fact` | 0.01/day |
+| `rule` | 0.01/day |
+| `preference` | 0.02/day |
+| `procedure` | 0.02/day |
+| `decision` | 0.03/day |
+| `assumption` | 0.03/day |
+| `temporary` | 0.08/day |
+| `goal` | 0 (no decay while active) |
+| `warning` | 0 (no decay) |
+| `error-pattern` | 0.02/day |
+| `hypothesis` | 0.06/day |
+
+### 6c. Initialize Cortex Fields
+
+Add these fields to every new memory entry alongside the base fields from Step 6:
+
+```json
+{
+  "type": "<inferred-type-from-6b>",
+  "confidence": {
+    "score": 0.90,
+    "source": "user-confirmed",
+    "reason": "Manually saved by user"
+  },
+  "vitality": {
+    "score": 50,
+    "trend": "stable",
+    "state": "active",
+    "reads": 0,
+    "last_read": null,
+    "reads_7d": 0,
+    "reads_30d": 0,
+    "foresight_loads": 0,
+    "foresight_skips": 0,
+    "agent_references": 0,
+    "update_count": 0,
+    "correction_events": 0,
+    "decay_rate": "<type-based-rate-from-6b>"
+  },
+  "links": {
+    "goals": [],
+    "conflicts": [],
+    "supersedes": null,
+    "superseded_by": null,
+    "causal": []
+  }
+}
+```
+
+### 6d. Update Existing Memories (Cortex Preservation)
+
+When UPDATING an existing key (not inserting new):
+1. Increment `vitality.update_count` by 1
+2. Preserve ALL existing cortex fields (`type`, `confidence`, `vitality`, `links`)
+3. Only overwrite `value`, `updated`, and `agent_id` as before
+4. If the existing memory lacks cortex fields (pre-cortex memory), initialize them with defaults:
+   - `type`: `"fact"`
+   - `confidence`: `{"score": 0.65, "source": "agent-inferred", "reason": "Pre-cortex memory"}`
+   - `vitality`: all fields set to 0/null, `score`: 50, `state`: "active", `trend`: "stable"
+   - `links`: `{"goals": [], "conflicts": [], "supersedes": null, "superseded_by": null, "causal": []}`
+
 ### 7. Update or Insert
-- If a memory with the same key exists, UPDATE it (preserve `created`, update `updated`, `value`, and `agent_id`)
-- If no memory with that key exists, INSERT the new memory
+- If a memory with the same key exists, UPDATE it (preserve `created`, update `updated`, `value`, and `agent_id`). Apply Step 6d for cortex field preservation.
+- If no memory with that key exists, INSERT the new memory with cortex fields from Step 6c
 
 ### 8. Write Back to Storage
 Write the updated memories array back to the JSON file using the Write tool.
@@ -91,6 +170,24 @@ Append to `.nemp/access.log`:
 ```bash
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] WRITE key=<key> agent=<agent_id> chars=<value_length>" >> .nemp/access.log
 ```
+
+### 9b. Contradiction Check
+
+After logging, scan existing memories for key-family overlap to detect potential conflicts:
+
+1. Extract the **key family** from the saved key: the first word(s) before the last hyphen segment. Example: `auth-provider` → family is `auth`, `db-connection-url` → family is `db-connection`.
+2. Search all memories for keys that share the same first stem (first word before the first hyphen).
+3. For each match, compare values for opposing language:
+   - Different version numbers (e.g., "v1" vs "v2", "14" vs "16")
+   - Different URLs or paths
+   - Different tool/library names for the same purpose
+   - Contradicting instructions ("always" vs "never", "use X" vs "use Y")
+4. If a potential conflict is detected, append a warning to the output:
+   ```
+   ⚠️ Possible conflict with [other-key] — check /nemp:cortex resolve
+   ```
+
+Do NOT block the save. This is an informational warning only.
 
 ### 10. Check Auto-Sync Config (REQUIRED)
 
@@ -137,6 +234,7 @@ If `.nemp/config.json` exists and contains `"autoSync": true`:
 
 Tell the user:
 - ✓ Memory saved: `<key>`
+- Type: `<type>` | Confidence: `<confidence-score>`
 - Agent: `<agent_id>`
 - Storage location: project/global
 - Total memories: N
@@ -149,6 +247,7 @@ User: `/nemp:save user-prefers-bun User prefers Bun over npm for package managem
 **Response (with auto-sync enabled):**
 ✓ Memory saved: user-prefers-bun
 Value: "Bun over npm for package management"
+Type: preference | Confidence: 0.90
 Agent: main
 Location: .nemp/memories.json (project)
 Total memories: 5
@@ -157,6 +256,7 @@ Total memories: 5
 **Response (without auto-sync):**
 ✓ Memory saved: user-prefers-bun
 Value: "Bun over npm for package management"
+Type: preference | Confidence: 0.90
 Agent: main
 Location: .nemp/memories.json (project)
 Total memories: 5

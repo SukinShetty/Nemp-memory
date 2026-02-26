@@ -187,24 +187,69 @@ auth, database, api, frontend, backend, testing, deployment, state, styling, con
 
 Report: `✅ Foresight: X/13 detectors configured` or `⚠️ Foresight not installed`
 
+### Step 9b: Cortex Health Check
+
+After the Foresight check, run a Cortex subsystem check:
+
+```bash
+[ -f ".nemp/cortex.json" ] && cat .nemp/cortex.json || echo "NO_CORTEX"
+[ -f ".nemp/episodes.json" ] && echo "EPISODES_EXISTS" || echo "NO_EPISODES"
+[ -f ".nemp/archive.json" ] && echo "ARCHIVE_EXISTS" || echo "NO_ARCHIVE"
+[ -f ".nemp/evolution.log" ] && echo "EVOLUTION_EXISTS" || echo "NO_EVOLUTION"
+```
+
+**Cortex checks:**
+
+**9b-i. Cortex tracking enabled?**
+- Read `.nemp/cortex.json` → check `settings.cortex_enabled`
+- ✅ enabled or ⚠️ disabled/missing
+
+**9b-ii. Extinct memories awaiting archive?**
+- For each memory in memories.json, check `vitality.state == "extinct"`
+- If any extinct AND last_read/created > 7 days ago → ⚠️ `N extinct memories need archiving — run /nemp:cortex --apply`
+- If extinct but < 7 days → ℹ️ report count only
+
+**9b-iii. Unresolved conflicts?**
+- Read `cortex.json.conflicts` array
+- Count entries with `status: "suspected"` or `status: "confirmed"` and `resolved: null`
+- If any → ⚠️ `N unresolved conflicts — run /nemp:cortex resolve`
+
+**9b-iv. Cortex trust score**
+- Count memories with `confidence.score >= 0.80` (high), `0.50-0.79` (medium), `< 0.50` (low)
+- If more than 30% of memories have low confidence → ⚠️ `Trust degraded — run /nemp:cortex trust`
+- Report: `Trust: NN% (N high, N medium, N low confidence memories)`
+
+**9b-v. Episode tracking active?**
+- Check `.nemp/episodes.json` exists and episodes array is non-empty after first foresight run
+- ✅ `N episodes tracked` or ℹ️ `No episodes yet (run /nemp:foresight to start tracking)`
+
+**9b-vi. Stale memories?**
+- Count memories where `vitality.state == "fading"` or `"dormant"`
+- If any → ℹ️ `N memories fading/dormant — consider /nemp:cortex --apply`
+
+**--fix behavior for 9b:** If cortex.json missing → create empty structure (same as storage agent created). If episodes.json or archive.json missing → create with empty arrays.
+
 ### Step 10: Calculate Health Score
 
 Score each check on a weighted scale:
 
 | Check | Weight | Pass | Fail |
 |-------|--------|------|------|
-| .nemp/ exists | 15 | 15 | 0 |
-| memories.json valid | 20 | 20 | 0 |
-| No empty values | 10 | 10 | -5 per empty |
+| .nemp/ exists | 10 | 10 | 0 |
+| memories.json valid | 18 | 18 | 0 |
+| No empty values | 7 | 7 | -4 per empty |
 | Values under 200 chars | 5 | 5 | -1 per oversized |
 | Timestamps valid | 5 | 5 | -1 per invalid |
-| CLAUDE.md in sync | 15 | 15 | 0 if stale |
+| CLAUDE.md in sync | 10 | 10 | 0 if stale |
 | Access log exists | 5 | 5 | 0 |
 | Config exists | 5 | 5 | 0 |
 | MEMORY.md in sync | 5 | 5 | 0 |
 | No duplicate keys | 5 | 5 | -2 per duplicate |
 | Foresight active | 5 | 5 | 0 |
 | Global memories valid | 5 | 5 | 0 |
+| Cortex enabled | 5 | 5 | 0 if disabled/missing |
+| No unresolved conflicts | 5 | 5 | -2 per conflict |
+| Trust score healthy | 5 | 5 | 0 if >30% low confidence |
 
 **Total possible: 100**
 
@@ -233,6 +278,7 @@ Score each check on a weighted scale:
   ✅ Foresight — 13/13 detectors active
   ✅ Config — autoSync enabled
   ✅ Global — 4 global memories
+  ✅ Cortex — enabled | trust: 84% | 0 conflicts | 0 extinct
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -280,6 +326,13 @@ Show EVERY check with pass/fail status, even passing ones:
   ✅ Access log: 47 entries
   ✅ Date range: 2026-02-01 to 2026-02-20
   ✅ No malformed entries
+
+  CORTEX
+  ✅ cortex.json — enabled, 0 chains, 0 conflicts
+  ✅ episodes.json — 12 episodes tracked
+  ✅ archive.json — 2 archived memories
+  ✅ Trust score: 84% (4 high, 3 medium, 1 low confidence)
+  ℹ️ 1 memory fading (consider /nemp:cortex --apply)
 
   CONFIG
   ✅ config.json valid

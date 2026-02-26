@@ -263,12 +263,44 @@ CORE KEY FLOOR:
 ════════════════════════════════════════════════════
 ```
 
+#### Step 5b: Apply Cortex Modifiers
+
+**Backward compatibility:** If any memory lacks cortex fields, initialize with defaults before scoring:
+- `type`: `"fact"`
+- `confidence`: `{"score": 0.65, "source": "agent-inferred", "reason": "Pre-cortex memory"}`
+- `vitality`: all counters set to 0, `score`: 50, `state`: "active", `trend`: "stable", `last_read`: null, `decay_rate`: 0.01
+- `links`: `{"goals": [], "conflicts": [], "supersedes": null, "superseded_by": null, "causal": []}`
+
+After computing the base total score from Step 5, apply these Cortex modifiers:
+
+```
+CORTEX MODIFIERS (applied to existing total score):
+
+1. Vitality state multiplier:
+   - If vitality.state == "thriving": score = score × 1.25
+   - If vitality.state == "dormant":  score = score × 0.5
+   - If vitality.state == "extinct":  score = 0 (exclude entirely)
+
+2. Type-based floor (always include important types):
+   - If memory type == "goal":    score = max(score, 0.40)
+   - If memory type == "warning": score = max(score, 0.35)
+
+3. Conflict tagging:
+   - If links.conflicts array is non-empty: tag memory with "⚠️ conflict" for display
+
+4. Chain prediction boost:
+   - If .nemp/cortex.json exists AND the current session's accessed memories
+     match the start of a known chain in cortex.json, boost the predicted
+     next memory in the chain by +0.15
+```
+
 ### Step 6: Filter and Sort
 
 ```
 1. Sort all memories by total score (descending)
-2. Remove memories where total < threshold  (default 0.15)
-3. Take the first top_k memories from the filtered list
+2. Skip memories where vitality.state == "extinct" (score already set to 0)
+3. Remove memories where total < threshold  (default 0.15)
+4. Take the first top_k memories from the filtered list
 ```
 
 ### Step 7: Display Results
@@ -285,21 +317,21 @@ Auto top_k: 12  ·  Threshold: 0.15
 
 RELEVANT MEMORIES  (4 of 11)
 
-  auth-provider [0.85]
+  auth-provider [0.85] ← thriving
   ──────────────────────────────────────────────────
   NextAuth.js with Google + GitHub OAuth providers
 
-  framework [0.30] ← core key
+  framework [0.30] ← active · core key
   ──────────────────────────────────────────────────
   Next.js 14 + TypeScript
 
-  stack [0.30] ← core key
+  stack [0.30] ← active · core key
   ──────────────────────────────────────────────────
   Next.js 14 + React 19 + Prisma + PostgreSQL
 
-  project-name [0.30] ← core key
+  old-config [0.20] ← fading ⚠️ conflict
   ──────────────────────────────────────────────────
-  linkbio-saas
+  Legacy config value
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -313,7 +345,9 @@ Quick actions:
 
 **Score label format:**
 - Score shown as `[0.85]` next to the key
-- Append `← core key` for memories boosted by the core key floor
+- Append `← <vitality-state>` after the score (e.g., `← thriving`, `← active`, `← fading`)
+- Append `· core key` if the memory was boosted by the core key floor
+- Append `⚠️ conflict` if links.conflicts is non-empty
 - Append `[global]` after the key name for memories from `~/.nemp/memories.json`
 
 **Token savings:**
@@ -372,6 +406,76 @@ Example:
 
 Truncate the prompt to 50 characters in the log. Use `agent=main` unless a
 different `agent_id` is available from context.
+
+### Step 8b: Update Vitality Counters
+
+After displaying results and logging, update memories.json with vitality changes:
+
+**For each SELECTED memory (displayed to the user):**
+```
+vitality.reads += 1
+vitality.reads_7d += 1
+vitality.reads_30d += 1
+vitality.last_read = <current ISO-8601 timestamp>
+vitality.foresight_loads += 1
+```
+
+**For each memory that was available but NOT selected (scored below threshold or beyond top_k):**
+```
+vitality.foresight_skips += 1
+```
+
+**Recalculate vitality scores** for all affected memories using the formula:
+```
+vitality = (
+  (reads_7d × 15) +
+  (reads_30d × 3) +
+  (foresight_load_ratio × 20) +
+  (agent_reference_ratio × 25) +
+  (update_frequency × 10) +
+  (goal_link_active × 15) -
+  (correction_events × 10) -
+  (days_since_last_read × decay_rate)
+)
+clamped to 0-100
+```
+Where:
+- `foresight_load_ratio` = foresight_loads / (foresight_loads + foresight_skips), default 0 if both are 0
+- `agent_reference_ratio` = agent_references / reads, default 0 if reads is 0
+- `update_frequency` = update_count / max(1, days_since_created)
+- `goal_link_active` = 1 if links.goals has any active goal, else 0
+
+Update `vitality.state` based on new score:
+- 80-100: `"thriving"`
+- 50-79: `"active"`
+- 20-49: `"fading"`
+- 1-19: `"dormant"`
+- 0: `"extinct"`
+
+Write ALL changes back to memories.json in **one write operation**.
+
+### Step 8c: Start Episode
+
+After loading memories for a task, create or update an episode in `.nemp/episodes.json`:
+
+1. If `.nemp/episodes.json` does not exist, create it with `{"episodes": []}` first.
+2. Generate an episode ID: `ep-<YYYY-MM-DD>-<NNN>` where NNN is a zero-padded sequence number for episodes created today (e.g., `ep-2026-02-26-001`).
+3. Create the episode entry:
+```json
+{
+  "episode_id": "ep-<YYYY-MM-DD>-<NNN>",
+  "timestamp": "<current ISO-8601>",
+  "goal": "<first 80 chars of foresight prompt>",
+  "memories_loaded": ["<key1>", "<key2>"],
+  "memories_referenced": [],
+  "actions_taken": [],
+  "outcome": "unknown",
+  "correction_applied": false
+}
+```
+4. Append this episode to the `episodes` array.
+5. If the array exceeds 100 episodes, drop the oldest entries to keep max 100.
+6. Write the updated episodes.json back.
 
 ---
 

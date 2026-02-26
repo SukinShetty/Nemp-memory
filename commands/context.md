@@ -118,6 +118,54 @@ For each (key, value) in memories:
 2. **Key contains** - Key contains search term or expanded keyword
 3. **Value contains** - Value contains search term or expanded keyword
 
+### 4b. Update Vitality for All Returned Memories
+
+For each memory that matches and will be displayed to the user, update its vitality counters:
+
+1. If the memory lacks cortex fields, initialize with defaults first:
+   - `type`: `"fact"`
+   - `confidence`: `{"score": 0.65, "source": "agent-inferred", "reason": "Pre-cortex memory"}`
+   - `vitality`: all counters set to 0, `score`: 50, `state`: "active", `trend`: "stable", `last_read`: null, `decay_rate`: 0.01
+   - `links`: `{"goals": [], "conflicts": [], "supersedes": null, "superseded_by": null, "causal": []}`
+2. For each matched memory, update:
+   ```
+   vitality.reads += 1
+   vitality.reads_7d += 1
+   vitality.reads_30d += 1
+   vitality.last_read = <current ISO-8601 timestamp>
+   ```
+3. Recalculate `vitality.score` using the formula:
+   ```
+   vitality = (
+     (reads_7d × 15) +
+     (reads_30d × 3) +
+     (foresight_load_ratio × 20) +
+     (agent_reference_ratio × 25) +
+     (update_frequency × 10) +
+     (goal_link_active × 15) -
+     (correction_events × 10) -
+     (days_since_last_read × decay_rate)
+   )
+   clamped to 0-100
+   ```
+   Where:
+   - `foresight_load_ratio` = foresight_loads / (foresight_loads + foresight_skips), default 0 if both are 0
+   - `agent_reference_ratio` = agent_references / reads, default 0 if reads is 0
+   - `update_frequency` = update_count / max(1, days_since_created)
+   - `goal_link_active` = 1 if links.goals has any active goal, else 0
+4. Set `vitality.state` based on score:
+   - 80-100: `"thriving"`
+   - 50-79: `"active"`
+   - 20-49: `"fading"`
+   - 1-19: `"dormant"`
+   - 0: `"extinct"`
+5. Write ALL updated memories back to memories.json in **one write operation** (do not write per-memory).
+
+**Log the operation:**
+```bash
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] CONTEXT_READ agent=${CLAUDE_AGENT_NAME:-main} query=<query> matched=<n>" >> .nemp/access.log
+```
+
 ### 5. Display Results
 
 **When matches found:**

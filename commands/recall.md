@@ -55,11 +55,56 @@ After finding a match, append to `.nemp/access.log`:
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] READ key=<key> agent=${CLAUDE_AGENT_NAME:-main} query=<original-query>" >> .nemp/access.log
 ```
 
+### 3b. Update Vitality Tracking
+
+After logging to access.log, update the matched memory's vitality counters in memories.json:
+
+1. Load the memory from the appropriate storage file (project or global)
+2. If the memory lacks vitality fields, initialize with defaults first:
+   - `type`: `"fact"`
+   - `confidence`: `{"score": 0.65, "source": "agent-inferred", "reason": "Pre-cortex memory"}`
+   - `vitality`: all counters set to 0, `score`: 50, `state`: "active", `trend`: "stable", `last_read`: null, `decay_rate`: 0.01
+   - `links`: `{"goals": [], "conflicts": [], "supersedes": null, "superseded_by": null, "causal": []}`
+3. Update these fields:
+   ```
+   vitality.reads += 1
+   vitality.reads_7d += 1
+   vitality.reads_30d += 1
+   vitality.last_read = <current ISO-8601 timestamp>
+   ```
+4. Recalculate `vitality.score` using the formula:
+   ```
+   vitality = (
+     (reads_7d × 15) +
+     (reads_30d × 3) +
+     (foresight_load_ratio × 20) +
+     (agent_reference_ratio × 25) +
+     (update_frequency × 10) +
+     (goal_link_active × 15) -
+     (correction_events × 10) -
+     (days_since_last_read × decay_rate)
+   )
+   clamped to 0-100
+   ```
+   Where:
+   - `foresight_load_ratio` = foresight_loads / (foresight_loads + foresight_skips), default 0 if both are 0
+   - `agent_reference_ratio` = agent_references / reads, default 0 if reads is 0
+   - `update_frequency` = update_count / max(1, days_since_created)
+   - `goal_link_active` = 1 if links.goals has any active goal, else 0
+5. Set `vitality.state` based on score:
+   - 80-100: `"thriving"`
+   - 50-79: `"active"`
+   - 20-49: `"fading"`
+   - 1-19: `"dormant"`
+   - 0: `"extinct"`
+6. Write the updated memory back to memories.json
+
 ### 4. Return Results
 
 **Single exact match:**
 🔍 Memory: <key>
 Value: <value>
+Type: <type> | Vitality: <vitality-score> (<vitality-state>) | Confidence: <confidence-score>
 Agent: <agent_id who wrote it>
 Updated: <date>
 Source: project/global
@@ -86,8 +131,10 @@ Save a new memory with /nemp:save
 
 ### Exact key lookup
 User: `/nemp:recall auth-flow`
-📝 Memory: auth-flow
+🔍 Memory: auth-flow
 Value: "Authentication uses JWT access tokens (15min) with refresh tokens (7 days). Tokens stored in httpOnly cookies."
+Type: procedure | Vitality: 94 (thriving) | Confidence: 0.91
+Agent: main
 Created: 2024-01-15T10:30:00Z
 Updated: 2024-01-20T14:22:00Z
 Source: project (.nemp/memories.json)
