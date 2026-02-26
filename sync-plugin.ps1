@@ -7,8 +7,8 @@ $SourceHooks = "C:\Users\SukinShetty\OneDrive - Kambaa\Cursor Projects\Nemp-memo
 # Destination folders
 $MarketplaceCommands = "C:\Users\SukinShetty\.claude\plugins\marketplaces\nemp-memory\commands"
 $MarketplaceHooks = "C:\Users\SukinShetty\.claude\plugins\marketplaces\nemp-memory\.claude-plugin\hooks"
-$CacheCommands = "C:\Users\SukinShetty\.claude\plugins\cache\nemp-memory\nemp\0.1.0\commands"
-$CacheHooks = "C:\Users\SukinShetty\.claude\plugins\cache\nemp-memory\nemp\0.1.0\.claude-plugin\hooks"
+$CacheCommands = "C:\Users\SukinShetty\.claude\plugins\cache\nemp-memory\nemp\0.3.0\commands"
+$CacheHooks = "C:\Users\SukinShetty\.claude\plugins\cache\nemp-memory\nemp\0.3.0\.claude-plugin\hooks"
 
 Write-Host "=== Nemp Memory Plugin Sync ===" -ForegroundColor Cyan
 Write-Host ""
@@ -41,4 +41,4 @@ if (Test-Path $SourceHooks) {
 Write-Host ""
 Write-Host "=== Sync Complete ===" -ForegroundColor Cyan
 Write-Host "  Marketplace: ~/.claude/plugins/marketplaces/nemp-memory/" -ForegroundColor Gray
-Write-Host "  Cache: ~/.claude/plugins/cache/nemp-memory/nemp/0.1.0/" -ForegroundColor Gray
+Write-Host "  Cache: ~/.claude/plugins/cache/nemp-memory/nemp/0.3.0/" -ForegroundColor Gray
