@@ -264,7 +264,19 @@ Read:
 
 ### Step 2: Archive Extinct Memories
 
-For each memory with vitality state == "extinct":
+**Pre-Cortex Grace Period (Archive Protection):**
+Before archiving any memory, check if it is protected:
+```
+cortex_activated = settings.cortex_activated from cortex.json (null if missing)
+
+PROTECTED if ALL true:
+  1. cortex_activated is not null
+  2. memory.created < cortex_activated   (predates Cortex tracking)
+  3. (now - cortex_activated) < 14 days  (within grace period)
+```
+Skip protected memories — do not archive them.
+
+For each memory with vitality state == "extinct" **that is not protected**:
 - Check if `last_read > 7 days ago` OR (`last_read` is null AND `created > 7 days ago`)
 - If yes:
   - Add to `archive.json` with additional fields: `archive_reason: "extinct-7-days"`, `archive_timestamp: "<now ISO-8601>"`, `recoverable: true`

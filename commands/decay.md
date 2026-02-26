@@ -110,9 +110,37 @@ Compare new score to previous `vitality.score`:
 
 ### Step 3: Auto-Archive Extinct Memories
 
+#### ARCHIVE PROTECTION — Pre-Cortex Grace Period
+
+Before evaluating any memory for archiving, check whether it is protected:
+
+```
+cortex_activated = settings.cortex_activated from cortex.json
+                   (if missing, treat as null — no protection applies)
+
+A memory is PROTECTED if ALL of the following are true:
+  1. cortex_activated is not null
+  2. memory.created < cortex_activated
+     (the memory existed before Cortex tracking was enabled)
+  3. (now - cortex_activated) < 14 days
+     (we are still within the 14-day grace period since activation)
+```
+
+Protected memories are **skipped entirely** for this decay run — do not archive them, do not log them as candidates, do not count them in the archived total. Their vitality scores are still updated normally (Step 2).
+
+If `--dry-run` is active, report protected memories separately:
+```
+[DRY RUN] Protected (pre-Cortex grace): <key> (created: <date>, grace expires: <date>)
+```
+
+**Rationale:** Memories that predate Cortex had no opportunity to accumulate read counts or vitality signals. Without the grace period, Cortex would immediately archive them simply because they were never tracked — not because they are genuinely stale.
+
+---
+
 For each memory where ALL of these conditions are true:
 - `vitality.state` == `"extinct"` (score is 0)
 - `vitality.last_read` was more than 7 days ago, OR `last_read` is null AND `created` was more than 7 days ago
+- Memory is **not protected** by the pre-Cortex grace period (see above)
 
 Perform the archive:
 
