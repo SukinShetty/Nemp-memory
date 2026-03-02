@@ -9,5 +9,29 @@
   },
   "homepage": "https://nemp.dev",
   "repository": "https://github.com/SukinShetty/Nemp-memory",
-  "license": "MIT"
+  "license": "MIT",
+  "commands": [
+    { "name": "nemp:save", "file": "commands/save.md" },
+    { "name": "nemp:recall", "file": "commands/recall.md" },
+    { "name": "nemp:list", "file": "commands/list.md" },
+    { "name": "nemp:forget", "file": "commands/forget.md" },
+    { "name": "nemp:init", "file": "commands/init.md" },
+    { "name": "nemp:context", "file": "commands/context.md" },
+    { "name": "nemp:suggest", "file": "commands/suggest.md" },
+    { "name": "nemp:export", "file": "commands/export.md" },
+    { "name": "nemp:sync", "file": "commands/sync.md" },
+    { "name": "nemp:auto-sync", "file": "commands/auto-sync.md" },
+    { "name": "nemp:log", "file": "commands/log.md" },
+    { "name": "nemp:activity", "file": "commands/activity.md" },
+    { "name": "nemp:health", "file": "commands/health.md" },
+    { "name": "nemp:foresight", "file": "commands/foresight.md" },
+    { "name": "nemp:decay", "file": "commands/decay.md" },
+    { "name": "nemp:cortex", "file": "commands/cortex.md" },
+    { "name": "nemp:save-global", "file": "commands/save-global.md" },
+    { "name": "nemp:recall-global", "file": "commands/recall-global.md" },
+    { "name": "nemp:list-global", "file": "commands/list-global.md" },
+    { "name": "nemp:import", "file": "commands/import.md" },
+    { "name": "nemp:auto-export", "file": "commands/auto-export.md" },
+    { "name": "nemp:auto-capture", "file": "commands/auto-capture.md" }
+  ]
 }
