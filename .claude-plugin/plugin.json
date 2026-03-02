@@ -1,7 +1,7 @@
 {
   "name": "nemp",
   "version": "0.3.0",
-  "description": "Persistent local memory for Claude Code agents. Auto-detects your tech stack, remembers decisions across sessions, and shares context between agents. 100% local, zero cloud, plain JSON. Tracks which agent wrote what with full audit logs.",
+  "description": "Persistent local memory for Claude Code agents. Auto-detects your tech stack, remembers decisions across sessions, and shares context between agents. 100% local, zero cloud, plain JSON.",
   "author": {
     "name": "Sukin Shetty",
     "email": "contact@nemp.dev",
@@ -20,18 +20,11 @@
     { "name": "nemp:suggest", "file": "commands/suggest.md" },
     { "name": "nemp:export", "file": "commands/export.md" },
     { "name": "nemp:sync", "file": "commands/sync.md" },
-    { "name": "nemp:auto-sync", "file": "commands/auto-sync.md" },
     { "name": "nemp:log", "file": "commands/log.md" },
     { "name": "nemp:activity", "file": "commands/activity.md" },
     { "name": "nemp:health", "file": "commands/health.md" },
     { "name": "nemp:foresight", "file": "commands/foresight.md" },
-    { "name": "nemp:decay", "file": "commands/decay.md" },
     { "name": "nemp:cortex", "file": "commands/cortex.md" },
-    { "name": "nemp:save-global", "file": "commands/save-global.md" },
-    { "name": "nemp:recall-global", "file": "commands/recall-global.md" },
-    { "name": "nemp:list-global", "file": "commands/list-global.md" },
-    { "name": "nemp:import", "file": "commands/import.md" },
-    { "name": "nemp:auto-export", "file": "commands/auto-export.md" },
-    { "name": "nemp:auto-capture", "file": "commands/auto-capture.md" }
+    { "name": "nemp:import", "file": "commands/import.md" }
   ]
-}}
+}
