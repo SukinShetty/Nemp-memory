@@ -1,34 +1,65 @@
 ---
-description: "Export memories to CLAUDE.md for persistent project context"
-argument-hint: "[--replace]"
+description: "Export memories to CLAUDE.md and cross-provider AI rule files"
+argument-hint: "[--replace | --codex | --cursor | --windsurf | --all]"
 ---
 
 # /nemp:export
 
-Export all project memories to CLAUDE.md in a clean, readable format.
+Export all project memories to AI tool context files. By default, exports to `CLAUDE.md`. Use flags to target other AI tools (Codex CLI, Cursor, Windsurf) or all at once.
 
 ## Usage
 ```
-/nemp:export           # Append or update Nemp section in CLAUDE.md
-/nemp:export --replace # Replace entire CLAUDE.md with Nemp content only
+/nemp:export             # Append or update Nemp section in CLAUDE.md
+/nemp:export --replace   # Replace entire CLAUDE.md with Nemp content only
+/nemp:export --codex     # Generate AGENTS.md for Codex CLI
+/nemp:export --cursor    # Generate .cursor/rules/nemp-memory.mdc for Cursor
+/nemp:export --windsurf  # Generate .windsurfrules for Windsurf
+/nemp:export --all       # Generate all four files (CLAUDE.md + three providers)
 ```
 
 ## Arguments
-- `--replace` (optional): Replace the entire CLAUDE.md instead of appending/updating
+- (no args): Append or update the Nemp section in `CLAUDE.md`
+- `--replace`: Replace the entire `CLAUDE.md` instead of appending/updating
+- `--codex`: Export to `AGENTS.md` in project root (Codex CLI format)
+- `--cursor`: Export to `.cursor/rules/nemp-memory.mdc` (MDC frontmatter, `alwaysApply: true`)
+- `--windsurf`: Export to `.windsurfrules` in project root (plain markdown)
+- `--all`: Run all four exports (CLAUDE.md + AGENTS.md + .cursor/rules/nemp-memory.mdc + .windsurfrules)
 
 ## Instructions
 
 When the user invokes `/nemp:export`, follow these steps:
 
-### 1. Load Project Memories
+### Step 1: Parse Arguments
 
-Read the project memories file:
+Identify which flag (if any) the user provided:
+
+```
+(no args)    → Export to CLAUDE.md (append/update)
+--replace    → Export to CLAUDE.md (full replace)
+--codex      → Export to AGENTS.md
+--cursor     → Export to .cursor/rules/nemp-memory.mdc
+--windsurf   → Export to .windsurfrules
+--all        → Export to CLAUDE.md + AGENTS.md + .cursor/rules/nemp-memory.mdc + .windsurfrules
+```
+
+If the argument is unrecognised, display the Usage block above and stop.
+
+---
+
+## Memory Loading (shared by all export paths)
+
+Before generating any export file, perform these steps to load and prepare memories.
+
+### Step 2: Read memories.json
+
+Read `.nemp/memories.json`:
 
 ```bash
 [ -f ".nemp/memories.json" ] && cat .nemp/memories.json
 ```
 
-If no memories exist, inform the user:
+If the file does not exist, stop and show:
+
 ```
 ❌ No memories to export.
 
@@ -37,84 +68,121 @@ Save some memories first:
   /nemp:init  (auto-detect project stack)
 ```
 
-### 2. Parse and Organize Memories
+### Step 3: Parse Format (with Backward Compatibility)
 
-Group memories by tags if they exist. Common groupings:
-- **Tech Stack**: keys containing `stack`, `framework`, `database`, `auth`, `styling`
-- **Project Info**: keys containing `project`, `description`, `structure`
-- **Preferences**: keys containing `prefer`, `style`, `convention`
+The file may use either format:
+
+**New array format:**
+```json
+{
+  "memories": [
+    {
+      "key": "version",
+      "value": "0.3.0",
+      "created": "2026-02-26T16:00:00.000Z",
+      "updated": "2026-02-26T16:00:00.000Z",
+      "tags": ["auto-detected"],
+      "type": "fact",
+      "vitality": { "state": "active" }
+    }
+  ]
+}
+```
+
+**Legacy flat-object format:**
+```json
+{
+  "stack": { "value": "Next.js", "created": "...", "updated": "..." },
+  "auth":  { "value": "NextAuth", "created": "...", "updated": "..." }
+}
+```
+
+If the parsed JSON does not have a `memories` array, treat each top-level key as a memory entry with:
+```
+key      = the JSON key name
+value    = entry.value
+created  = entry.created
+updated  = entry.updated
+type     = entry.type (if present, else undefined)
+vitality = entry.vitality (if present, else undefined)
+```
+
+### Step 4: Filter Out Extinct Memories
+
+Skip any memory where `vitality.state === "extinct"`. Absent `vitality` means the memory is active — do not skip it.
+
+If `memories.json` cannot be parsed as valid JSON, stop and report:
+
+```
+❌ memories.json is not valid JSON. Check the file for syntax errors.
+```
+
+---
+
+## /nemp:export (no args) and /nemp:export --replace
+
+### Step 5a: Parse and Organize Memories for CLAUDE.md
+
+Group memories by semantic key names:
+- **Tech Stack**: keys containing `stack`, `framework`, `database`, `auth`, `styling`, `orm`, `testing`, `deployment`
+- **Project Info**: keys containing `project`, `description`, `name`, `structure`, `version`, `type`, `subproject`
+- **Global Preferences**: keys containing `prefer`, `style`, `convention`, `no-`, `favorite`, `team`, `workspace`
 - **Other**: everything else
 
-### 3. Generate Markdown Content
+### Step 6a: Generate CLAUDE.md Section Content
 
-Create a clean, professional markdown section:
+Create a clean, professional markdown section.
+
+Use the **table format** for short values (< 80 chars):
 
 ```markdown
 ## Project Context (via Nemp Memory)
 
 > Auto-generated by Nemp Memory. Last updated: [YYYY-MM-DD HH:MM]
+
+### Tech Stack
 
 | Key | Value |
 |-----|-------|
 | **stack** | Next.js 15, TypeScript, Prisma, PostgreSQL |
 | **auth** | NextAuth with JWT |
-| **styling** | Tailwind CSS v4 |
-| **database** | Prisma ORM with PostgreSQL |
 
 ---
 ```
 
-For memories with longer values, use a different format:
+Use the **prose format** for longer values:
 
 ```markdown
-## Project Context (via Nemp Memory)
-
-> Auto-generated by Nemp Memory. Last updated: [YYYY-MM-DD HH:MM]
-
-**stack:** Next.js 15, TypeScript, Prisma, PostgreSQL
-
-**auth:** NextAuth with JWT tokens stored in httpOnly cookies
-
-**project-description:** A SaaS starter kit for building subscription-based applications with built-in auth, payments, and admin dashboard.
+**project-description:** A SaaS starter kit for building subscription-based applications.
 
 **structure:**
 - Commands defined in /commands/*.md
 - Plugin config in .claude-plugin/
-- Hooks in .claude-plugin/hooks/
-
----
 ```
 
-Use the table format for short values (< 80 chars) and the list format for longer values.
+Use the table format for short values (< 80 chars) and the prose format for longer values. Emit a section heading (`### Tech Stack`, etc.) only for groups that have at least one memory.
 
-### 4. Check for Existing CLAUDE.md
+### Step 7a: Check for Existing CLAUDE.md
 
 ```bash
 [ -f "CLAUDE.md" ] && cat CLAUDE.md
 ```
 
-### 5. Handle CLAUDE.md Updates
+### Step 8a: Handle CLAUDE.md Updates
 
-**If CLAUDE.md does NOT exist:**
-- Create a new file with just the Nemp section
+**If `--replace` flag:** Write the Nemp section as the entire CLAUDE.md, replacing all existing content.
 
-**If CLAUDE.md exists and contains a Nemp section:**
-- Look for `## Project Context (via Nemp Memory)` heading
-- Find the end of the Nemp section (next `## ` heading or `---` separator or end of file)
-- Replace ONLY that section with the updated content
-- Preserve all other content in the file
+**If no flag (append/update mode):**
 
-**If CLAUDE.md exists but has NO Nemp section:**
-- Append the Nemp section at the end of the file
-- Add a blank line before the section for clean separation
+- **CLAUDE.md does not exist:** Create a new file with just the Nemp section.
+- **CLAUDE.md exists with a Nemp section:** Find `## Project Context (via Nemp Memory)`, find where the section ends (next `## ` heading, a line containing only `---`, or end of file), and replace only that section. Preserve all other content.
+- **CLAUDE.md exists without a Nemp section:** Append the Nemp section at the end with a blank line before it for clean separation.
 
-### 6. Write to CLAUDE.md
+### Step 9a: Write CLAUDE.md
 
 Use the Write tool to save the updated content.
 
-### 7. Confirm to User
-
-Display a summary:
+### Step 10a: Confirm to User
 
 ```
 ✅ Exported to CLAUDE.md
@@ -132,23 +200,261 @@ Display a summary:
 💡 CLAUDE.md is automatically read by Claude Code at session start.
 ```
 
+---
+
+## Cross-Provider Export: Shared Grouping Logic
+
+For `--codex`, `--cursor`, `--windsurf`, and `--all`, apply type-based grouping after Steps 2–4.
+
+### Step 5b: Group by Type
+
+Group the active memories by their `type` field. Valid types: `"fact"`, `"rule"`, `"procedure"`, `"preference"`, `"warning"`, `"decision"`. Memories without a `type` go under `"Other"`.
+
+**Group output order (skip empty groups):**
+1. Facts
+2. Rules
+3. Procedures
+4. Preferences
+5. Warnings
+6. Decisions
+7. Other
+
+### Step 6b: Sort Within Groups
+
+Within each group, sort memories alphabetically by `key` (case-insensitive, A → Z).
+
+### Step 7b: Token Budget Check
+
+Estimate the output size. Target under 4000 tokens (~16 000 characters). If exceeded, warn the user at the end of the confirmation message but proceed with the full export. Do not truncate silently.
+
+---
+
+## /nemp:export --codex
+
+Generate `AGENTS.md` in the project root for Codex CLI.
+
+### Step 8c: Build AGENTS.md Content
+
+Using the groups from Steps 5b–7b:
+
+```
+# Project Memory (powered by Nemp)
+> Auto-generated. Do not edit manually. Source: .nemp/memories.json
+> Last exported: <ISO timestamp> | Memories: <count>
+
+## Facts
+- <key>: <value>
+
+## Rules
+- <key>: <value>
+
+## Procedures
+- <key>: <value>
+
+## Preferences
+- <key>: <value>
+
+## Warnings
+- <key>: <value>
+
+## Decisions
+- <key>: <value>
+
+## Other
+- <key>: <value>
+
+---
+To update: save memories with /nemp:save in Claude Code, then /nemp:export --codex
+To write back: add entries to .nemp/memories.json following existing format
+```
+
+Only include section headers for groups with at least one memory. Each bullet line is `- <key>: <value>`.
+
+### Step 9c: Write AGENTS.md
+
+Write the generated content to `AGENTS.md` in the project root using the Write tool.
+
+### Step 10c: Confirm to User
+
+```
+✅ Exported <N> memories to AGENTS.md (Codex CLI)
+   Path: ./AGENTS.md
+   Size: ~<bytes> bytes (~<tokens> tokens)
+
+💡 Codex CLI reads AGENTS.md automatically from repo root.
+   Run /nemp:export --codex after saving new memories.
+```
+
+Calculate bytes as the character count of the generated content. Calculate tokens as `round(bytes / 4)`.
+
+---
+
+## /nemp:export --cursor
+
+Generate `.cursor/rules/nemp-memory.mdc` for Cursor.
+
+### Step 8d: Ensure Directory Exists
+
+```bash
+mkdir -p .cursor/rules
+```
+
+Always run this before writing, even if the directory appears to already exist.
+
+### Step 9d: Build MDC Content
+
+Using the groups from Steps 5b–7b, generate YAML frontmatter + markdown body:
+
+```
+---
+description: Project memory and coding context managed by Nemp Memory
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Project Memory (powered by Nemp)
+
+## Facts
+- <key>: <value>
+
+## Rules
+- <key>: <value>
+
+## Procedures
+- <key>: <value>
+
+## Preferences
+- <key>: <value>
+
+## Warnings
+- <key>: <value>
+
+## Decisions
+- <key>: <value>
+
+## Other
+- <key>: <value>
+
+<!-- Generated by Nemp Memory. Source: .nemp/memories.json -->
+<!-- Last exported: <ISO timestamp> | Memories: <count> -->
+```
+
+Only include section headers for groups with at least one memory. The `<!-- -->` comment lines are always placed at the very end of the file.
+
+### Step 10d: Write the MDC File
+
+Write the generated content to `.cursor/rules/nemp-memory.mdc` using the Write tool.
+
+### Step 11d: Confirm to User
+
+```
+✅ Exported <N> memories to .cursor/rules/nemp-memory.mdc (Cursor)
+   Path: ./.cursor/rules/nemp-memory.mdc
+   Size: ~<bytes> bytes (~<tokens> tokens)
+
+💡 Cursor loads .mdc files with alwaysApply: true at session start.
+   Run /nemp:export --cursor after saving new memories.
+```
+
+---
+
+## /nemp:export --windsurf
+
+Generate `.windsurfrules` in the project root for Windsurf.
+
+### Step 8e: Build .windsurfrules Content
+
+Using the groups from Steps 5b–7b, generate plain markdown (no YAML frontmatter):
+
+```
+# Project Memory (powered by Nemp)
+> Auto-generated. Do not edit manually. Source: .nemp/memories.json
+> Last exported: <ISO timestamp> | Memories: <count>
+
+## Facts
+- <key>: <value>
+
+## Rules
+- <key>: <value>
+
+## Procedures
+- <key>: <value>
+
+## Preferences
+- <key>: <value>
+
+## Warnings
+- <key>: <value>
+
+## Decisions
+- <key>: <value>
+
+## Other
+- <key>: <value>
+
+---
+To update: save memories with /nemp:save in Claude Code, then /nemp:export --windsurf
+```
+
+Only include section headers for groups with at least one memory.
+
+### Step 9e: Write .windsurfrules
+
+Write the generated content to `.windsurfrules` in the project root using the Write tool.
+
+### Step 10e: Confirm to User
+
+```
+✅ Exported <N> memories to .windsurfrules (Windsurf)
+   Path: ./.windsurfrules
+   Size: ~<bytes> bytes (~<tokens> tokens)
+
+💡 Windsurf reads .windsurfrules from the repo root automatically.
+   Run /nemp:export --windsurf after saving new memories.
+```
+
+---
+
+## /nemp:export --all
+
+Generate all four files: CLAUDE.md, AGENTS.md, .cursor/rules/nemp-memory.mdc, and .windsurfrules.
+
+### Step 8f: Run All Exports in Sequence
+
+Execute in order:
+1. **CLAUDE.md**: perform Steps 5a–10a (append/update mode).
+2. **AGENTS.md**: perform Steps 8c–10c.
+3. **Cursor MDC**: perform Steps 8d–11d.
+4. **Windsurf rules**: perform Steps 8e–10e.
+
+### Step 9f: Confirm to User
+
+```
+✅ All exports complete
+
+   CLAUDE.md                         ./CLAUDE.md             updated
+   AGENTS.md                         ./AGENTS.md             ~<bytes> bytes
+   .cursor/rules/nemp-memory.mdc     ./.cursor/rules/...     ~<bytes> bytes
+   .windsurfrules                    ./.windsurfrules        ~<bytes> bytes
+
+   Memories exported: <N>
+   Extinct skipped:   <X>
+
+💡 All AI tools are now in sync with .nemp/memories.json.
+   Run /nemp:export --all after any /nemp:save to refresh all targets.
+```
+
+---
+
 ## Example
 
 User: `/nemp:export`
 
-Given these memories in `.nemp/memories.json`:
+Given `.nemp/memories.json` with 2 memories:
 ```json
 {
-  "stack": {
-    "value": "Next.js 15 with TypeScript, Prisma, PostgreSQL",
-    "created": "2024-01-20T10:00:00Z",
-    "updated": "2024-01-20T10:00:00Z"
-  },
-  "auth": {
-    "value": "NextAuth with JWT",
-    "created": "2024-01-20T10:00:00Z",
-    "updated": "2024-01-20T10:00:00Z"
-  }
+  "stack": { "value": "Next.js 15 with TypeScript, Prisma, PostgreSQL", "created": "2024-01-20T10:00:00Z", "updated": "2024-01-20T10:00:00Z" },
+  "auth":  { "value": "NextAuth with JWT", "created": "2024-01-20T10:00:00Z", "updated": "2024-01-20T10:00:00Z" }
 }
 ```
 
@@ -179,7 +485,9 @@ Response:
 💡 CLAUDE.md is automatically read by Claude Code at session start.
 ```
 
-## Section Detection Logic
+---
+
+## Section Detection Logic (CLAUDE.md update)
 
 To find and replace an existing Nemp section:
 
@@ -191,15 +499,47 @@ To find and replace an existing Nemp section:
 3. Replace everything between start and end with new content
 4. Preserve exact whitespace and formatting of surrounding content
 
+---
+
 ## Error Handling
 
 - **No memories**: Prompt user to save memories first
-- **Write permission error**: Report error and suggest checking file permissions
-- **Malformed memories.json**: Report parsing error and suggest checking the file
+- **Empty memories after filtering extinct**: Export an empty file with only the header and footer lines. Warn: `⚠️ All memories are extinct or no memories exist. Exported empty file.`
+- **Write permission error**: Report the OS error and suggest checking file permissions
+- **Malformed memories.json**: Stop and report `❌ memories.json is not valid JSON. Check the file for syntax errors.`
+- **.cursor/rules/ directory cannot be created**: Report error and suggest creating the directory manually
+
+---
+
+## Implementation Notes
+
+**Extinct filtering is mandatory.** Never export a memory with `vitality.state === "extinct"` regardless of its other fields.
+
+**Section headers are conditional.** Only emit a heading (e.g., `## Facts`) if that group has at least one non-extinct memory.
+
+**Alphabetical sort is case-insensitive.** Sort by `key.toLowerCase()` within each group.
+
+**Token estimate formula:** `tokens ≈ round(character_count / 4)`. Use the length of the final file content string, not the raw JSON.
+
+**Write tool usage:** Use the Write tool for all file writes. Never use Bash redirection or echo for file writes.
+
+**Directory creation for Cursor:** Always run `mkdir -p .cursor/rules` before writing the MDC file.
+
+**CLAUDE.md sync in --all:** Follow the section-detection logic above — find and replace only the `## Project Context (via Nemp Memory)` section, preserving all other content.
 
 ## Tips
 
 After exporting, remind the user:
-- CLAUDE.md is read automatically by Claude Code
+- CLAUDE.md is read automatically by Claude Code at session start
 - Run `/nemp:export` again after adding new memories
 - Use `/nemp:list` to see all available memories
+- Use `/nemp:export --all` to keep all AI tools in sync at once
+
+## Related Commands
+
+- `/nemp:save` — Save or update a memory
+- `/nemp:init` — Auto-detect project stack and initialize memories
+- `/nemp:list` — View all memory keys and values
+- `/nemp:forget` — Remove a memory
+- `/nemp:cortex` — Memory intelligence layer (manages vitality and extinct state)
+- `/nemp:sync` — Two-way sync between Nemp Memory and CLAUDE.md
