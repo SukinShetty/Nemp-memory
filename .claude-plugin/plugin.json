@@ -34,4 +34,4 @@
     { "name": "nemp:auto-export", "file": "commands/auto-export.md" },
     { "name": "nemp:auto-capture", "file": "commands/auto-capture.md" }
   ]
-}
+}}
