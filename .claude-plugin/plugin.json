@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "nemp",
   "version": "0.3.0",
-  "description": "Persistent local memory for Claude Code agents.",
+  "description": "Persistent local memory for Claude Code agents. Auto-detects your tech stack, remembers decisions across sessions, and shares context between agents. 100% local, zero cloud, plain JSON. Tracks which agent wrote what with full audit logs.",
   "author": {
     "name": "Sukin Shetty",
     "email": "contact@nemp.dev",
@@ -10,17 +10,6 @@
   "homepage": "https://nemp.dev",
   "repository": "https://github.com/SukinShetty/Nemp-memory",
   "license": "MIT",
-  "commands": [
-    { "name": "nemp:save", "file": "commands/save.md" },
-    { "name": "nemp:recall", "file": "commands/recall.md" },
-    { "name": "nemp:list", "file": "commands/list.md" },
-    { "name": "nemp:forget", "file": "commands/forget.md" },
-    { "name": "nemp:init", "file": "commands/init.md" },
-    { "name": "nemp:context", "file": "commands/context.md" },
-    { "name": "nemp:suggest", "file": "commands/suggest.md" },
-    { "name": "nemp:export", "file": "commands/export.md" },
-    { "name": "nemp:health", "file": "commands/health.md" },
-    { "name": "nemp:cortex", "file": "commands/cortex.md" },
-    { "name": "nemp:import", "file": "commands/import.md" }
-  ]
+  "commands": "./commands/",
+  "skills": "./skills/"
 }
