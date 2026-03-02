@@ -3,16 +3,16 @@ description: "Import memories from other AI providers (Codex, Cursor, Windsurf) 
 argument-hint: "[--codex|--cursor|--windsurf|--auto]"
 ---
 
-# /nemp-pro:import
+# /nemp:import
 
 Import memories from other AI provider rule files back into Nemp's local storage. Supports Codex CLI (AGENTS.md), Cursor (.cursor/rules/nemp-memory.mdc), and Windsurf (.windsurfrules). Detects new entries, surfaces conflicts, and asks for confirmation before overwriting existing values.
 
 ## Usage
 ```
-/nemp-pro:import --codex      # Import from AGENTS.md
-/nemp-pro:import --cursor     # Import from .cursor/rules/nemp-memory.mdc
-/nemp-pro:import --windsurf   # Import from .windsurfrules
-/nemp-pro:import --auto       # Detect and import from all sources that exist
+/nemp:import --codex      # Import from AGENTS.md
+/nemp:import --cursor     # Import from .cursor/rules/nemp-memory.mdc
+/nemp:import --windsurf   # Import from .windsurfrules
+/nemp:import --auto       # Detect and import from all sources that exist
 ```
 
 ## Instructions
@@ -214,7 +214,7 @@ When adding a new memory discovered during import, write it in this format:
   "created": "<current-ISO-timestamp>",
   "updated": "<current-ISO-timestamp>",
   "projectPath": "<current-project-path>",
-  "agent_id": "nemp-pro-import",
+  "agent_id": "nemp-import",
   "tags": ["imported"],
   "confidence": {
     "source": "imported-from-codex",
