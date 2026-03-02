@@ -321,6 +321,68 @@ Nemp reads all your saved memories, organizes them by category, and writes a cle
 
 ---
 
+## Cross-Provider Memory (Nemp Pro)
+
+**Work in Claude Code, Codex, Cursor, and Windsurf — same memory, everywhere.**
+
+Nemp Pro adds cross-provider export so your memories work in every AI coding tool. Save once in Claude Code, available everywhere.
+
+```
+Claude Code <-> .nemp/memories.json <-> Nemp Pro Export
+                                             |
+                                             +-- AGENTS.md ---------> Codex CLI
+                                             +-- .cursor/rules/ ----> Cursor
+                                             +-- .windsurfrules ----> Windsurf
+```
+
+### Setup (30 seconds)
+
+**1. Export to your preferred tools:**
+
+```bash
+/nemp-pro:export --codex      # Generate AGENTS.md for Codex CLI
+/nemp-pro:export --cursor     # Generate .cursor/rules/nemp-memory.mdc
+/nemp-pro:export --windsurf   # Generate .windsurfrules
+/nemp-pro:export --all        # Generate all three at once
+```
+
+**2. Enable auto-export (optional):**
+
+```bash
+/nemp-pro:auto-export on
+```
+
+Now every `/nemp:save` automatically updates all export files. Set it once, forget it.
+
+### Provider-Specific Setup
+
+**Codex CLI** — reads `AGENTS.md` automatically from repo root. No config needed.
+
+**Cursor** — reads `.cursor/rules/*.mdc` files. The `alwaysApply: true` frontmatter ensures your memories are always in context.
+
+**Windsurf** — reads `.windsurfrules` from repo root automatically.
+
+### Bidirectional Sync
+
+Edited memories in Codex? Import them back:
+
+```bash
+/nemp-pro:import --codex      # Import changes from AGENTS.md
+/nemp-pro:import --cursor     # Import from Cursor rules
+/nemp-pro:import --auto       # Detect and import from all sources
+```
+
+The import command detects new entries, shows conflicts, and asks for confirmation before updating.
+
+### Export Status
+
+```bash
+/nemp-pro:export --status     # Check which files exist and when they were last updated
+/nemp-pro:auto-export status  # Check auto-export configuration
+```
+
+---
+
 ## Installation
 
 ### Method 1: Plugin Marketplace (Recommended)
