@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nemp-memory",
-  "description": "Nemp Memory Plugin - Persistent long-term memory for Claude Code across sessions and projects. Save, recall, and manage memories that persist between conversations.",
+  "description": "Nemp Memory — project-owned cognitive memory for AI coding agents. Preserve decisions, rules, goals and failure patterns across sessions and tools.",
   "owner": {
     "name": "Sukin Shetty",
     "email": "contact@nemp.dev"
@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "nemp",
-      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
-      "version": "0.1.0",
+      "description": "Self-cognitive, local-first project memory for AI coding agents. Nemp remembers useful context, predicts what a task needs, checks memory health and carries project knowledge across Claude Code, Codex, Cursor, Windsurf and AgentSkills-compatible tools.",
+      "version": "0.3.0",
       "author": {
         "name": "Sukin Shetty",
         "email": "contact@nemp.dev"
@@ -19,7 +19,15 @@
       "category": "productivity",
       "homepage": "https://github.com/SukinShetty/Nemp-memory",
       "license": "MIT",
-      "tags": ["memory", "persistence", "context", "productivity"]
+      "tags": [
+        "agent-memory",
+        "cognitive-memory",
+        "coding-agents",
+        "cross-tool",
+        "context",
+        "local-first",
+        "persistence"
+      ]
     }
   ]
 }
