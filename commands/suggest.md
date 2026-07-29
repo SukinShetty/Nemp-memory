@@ -1031,12 +1031,15 @@ draft_database_memory() {
     DRAFT+="Drizzle ORM, "
   fi
 
-  # Detect database from env or config
-  if grep -q "postgresql\|postgres" .env* 2>/dev/null; then
+  # Detect database from safe schema or dependency metadata. Never read .env files.
+  if grep -Eq 'provider[[:space:]]*=[[:space:]]*"postgresql"' prisma/schema.prisma 2>/dev/null ||
+     grep -Eq '"(pg|postgres|postgresql|@neondatabase/serverless|@vercel/postgres)"[[:space:]]*:' package.json 2>/dev/null; then
     DRAFT+="PostgreSQL"
-  elif grep -q "mysql" .env* 2>/dev/null; then
+  elif grep -Eq 'provider[[:space:]]*=[[:space:]]*"mysql"' prisma/schema.prisma 2>/dev/null ||
+       grep -Eq '"(mysql|mysql2|@planetscale/database)"[[:space:]]*:' package.json 2>/dev/null; then
     DRAFT+="MySQL"
-  elif grep -q "sqlite" .env* 2>/dev/null; then
+  elif grep -Eq 'provider[[:space:]]*=[[:space:]]*"sqlite"' prisma/schema.prisma 2>/dev/null ||
+       grep -Eq '"(sqlite|sqlite3|better-sqlite3|@libsql/client)"[[:space:]]*:' package.json 2>/dev/null; then
     DRAFT+="SQLite"
   fi
 

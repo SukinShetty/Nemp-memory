@@ -780,6 +780,33 @@ Same `.nemp/memories.json`. Same commands. Zero cloud.
 
 OpenClaw uses the same [AgentSkills](https://agentskills.io) standard as Claude Code. Nemp's memory commands are plain file operations on local JSON — no platform-specific APIs. If your agent can read and write files, Nemp works.
 
+### Pair With TweetClaw for Public X/Twitter Memory
+
+Nemp stores the memory. [TweetClaw](https://github.com/Xquik-dev/tweetclaw) gathers public X/Twitter source material through Xquik.
+
+Install TweetClaw from Xquik's verified ClawHub publisher scope:
+
+```bash
+openclaw plugins install clawhub:@xquik/tweetclaw
+```
+
+Set `XQUIK_API_KEY` in your environment. Then configure the plugin and tools:
+
+```bash
+openclaw config set plugins.entries.tweetclaw.config.apiKey "$XQUIK_API_KEY"
+openclaw config set tools.alsoAllow '["explore", "tweetclaw"]'
+```
+
+Use TweetClaw when an OpenClaw agent needs to scrape tweets, search tweets, search tweet replies, post tweets, post tweet replies, export followers, look up users, upload media, download media, send direct messages, monitor tweets, receive webhooks, or run giveaway draws. Then save only the reviewed summary in Nemp:
+
+```bash
+/nemp:save launch-feedback "TweetClaw search: query='openclaw plugin launch', saved 6 tweet URLs, 3 objections, 2 follow-up ideas"
+```
+
+Keep raw timelines, direct messages, API keys, and private account data out of Nemp. Store source tweet URLs or IDs, capture date, short summary, and next action. See the [ClawHub listing](https://clawhub.ai/xquik/plugins/tweetclaw) for current setup guidance.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
+
 ---
 
 ## Real Use Cases
