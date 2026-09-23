@@ -76,7 +76,7 @@ Claude Code forgets everything between sessions. You waste 15-20 minutes every d
 
 ---
 
-## What's New in v0.2.0
+## What's New in v0.3.0
 
 | Feature | Description |
 |---------|-------------|
@@ -716,7 +716,7 @@ rm -rf ~/.nemp
 /nemp:sync                    # Two-way sync with CLAUDE.md
 /nemp:export                  # Generate CLAUDE.md from memories
 
-# Audit Trail (v0.2.0)
+# Audit Trail (v0.3.0)
 /nemp:log                     # View access log (reads, writes, deletes)
 /nemp:log --agent backend     # Filter by agent
 /nemp:log --tail 50           # Show last 50 entries
@@ -927,3 +927,4 @@ Open source. Free forever. Use however you want.
   <br>
   <p><strong>Stop repeating yourself. Start coding faster.</strong></p>
 </div>
+
