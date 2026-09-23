@@ -920,29 +920,25 @@ When `/nemp:save` runs:
 
 ## COMPETITIVE POSITIONING
 
-**What nobody else has:**
+**How Nemp Cortex compares (checked Sep 2026):**
 
-| Capability | Nemp Cortex | Mem0 | claude-mem | Zep | Supermemory |
-|-----------|-------------|------|-----------|-----|-------------|
-| Memory types | ✅ 11 types | ❌ | ❌ | ❌ | ❌ |
-| Confidence scores | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Vitality/decay | ✅ type-aware | ❌ | ❌ | basic | ❌ |
-| Contradiction detection | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Episodic memory | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Causal links | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Prediction chains | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Self-rewriting | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Codebase validation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Goal-linked memory | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Correction tracing | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Task simulation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Trust scoring | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Meta-memory | ✅ | ❌ | ❌ | ❌ | ❌ |
-| 100% local | ✅ | ❌ cloud | ✅ | ❌ cloud | ❌ cloud |
-| Zero ML models | ✅ | ❌ | ✅ | ❌ | ❌ |
+Earlier drafts of this table claimed other tools had no contradiction handling. That was wrong, so the comparison below sticks to claims with a source.
+
+- **Mem0** resolves new facts against existing memories: its update step has the LLM return `ADD`, `UPDATE`, `DELETE` or `NONE` for each memory, and a fact that contradicts a stored memory can update or delete it ([Mem0 docs: custom update memory prompt](https://github.com/mem0ai/mem0/blob/v1.0.10/docs/open-source/features/custom-update-memory-prompt.mdx)). Mem0 also ships as an open-source library and a self-hosted server, not only a cloud service ([mem0ai/mem0](https://github.com/mem0ai/mem0)).
+- **Zep / Graphiti** handles contradictions with a bi-temporal knowledge graph: when new information contradicts an old fact, the old edge is invalidated with `invalid_at` / `expired_at` rather than deleted ([Graphiti temporal model](https://getzep-graphiti.mintlify.app/concepts/temporal-model), [Zep paper](https://arxiv.org/abs/2501.13956)).
+
+**Where Nemp Cortex is meant to stand out:**
+
+| Capability | Nemp Cortex (planned) |
+|-----------|-------------|
+| Typed memories | 11 types with type-aware decay |
+| Confidence and vitality scores | Per memory, visible to the user |
+| Contradiction handling | Conflict records with guided resolution |
+| Episodic memory and correction tracing | Planned |
+| Codebase validation | Checks memories against project files |
+| Goal-linked memory | Planned |
+| Runs locally | Plain files, no ML models, uses the LLM already running |
 
 **The pitch:**
 
-> "Nemp Cortex is the first AI memory system that thinks. It doesn't just store — it types, scores, validates, predicts, detects contradictions, learns from mistakes, and rewrites itself to be better. All locally. No cloud. No ML. The LLM you're already running IS the brain."
-
-> "Every other tool is a filing cabinet. Nemp is a cortex."
+> "Nemp Cortex types, scores, validates and reconciles your project memory - locally, in plain files, using the LLM you are already running."
