@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "nemp",
-      "description": "Never Forget Memory Plugin - Persistent long-term memory for Claude Code. Save project-specific and global memories, auto-detect project stacks, capture activity, and recall context across sessions.",
-      "version": "0.1.0",
+      "description": "Nemp Memory — Cognitive memory layer for AI agents across every platform. Local-first, zero cloud, works with Claude, Codex, Cursor, and Windsurf.",
+      "version": "0.3.0",
       "author": {
         "name": "Sukin Shetty",
         "email": "contact@nemp.dev"
