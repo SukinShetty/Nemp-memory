@@ -7,8 +7,8 @@
     </tr>
   </table>
 
-  <p><strong>Local project memory for Claude Code and OpenClaw.</strong></p>
-  <p>Save a decision once. Every new session starts knowing your stack, your rules and why things are the way they are.</p>
+  <p><strong>A local-first agentic memory architecture.</strong></p>
+  <p>Give AI agents durable context: project knowledge, decisions, rules and preferences that persist across sessions.</p>
 
   <p>
     <img src="https://img.shields.io/badge/version-0.3.0-blue.svg" alt="Version 0.3.0">
@@ -25,22 +25,115 @@
 
 ---
 
-## Why Nemp
+## Memory for agents that work across sessions
 
-Claude Code starts every session from zero. You end up re-explaining the same things:
+An agent's context window covers the current task. A project carries decisions, constraints and lessons that need to outlive it.
 
-- your stack and project structure
-- decisions you already made, and why
-- conventions, preferences and known gotchas
-- what you were working on yesterday
+Nemp gives that knowledge a persistent home. It organizes memory in local JSON, retrieves relevant context, records which agent wrote it, and connects it to the instructions an agent uses while working. The memory belongs to the project and the user.
 
-Nemp keeps that context in plain JSON inside your project, lets you search it, and keeps your `CLAUDE.md` in step with it. No servers, no database, no API keys, no dependencies.
+The architecture has three parts: **a durable memory store, agent-executed memory operations, and integrations that bring context into a working session.** Claude Code provides the current command interface; the underlying files remain readable by other agents and tools.
+
+[Architecture](#architecture) · [Memory lifecycle](#memory-lifecycle) · [Integrations](#integrations) · [Quick start](#quick-start) · [Commands](#commands)
+
+---
+
+## Architecture
+
+Nemp runs through instructions that the host agent follows to read and write files. The current implementation is Markdown command definitions and a memory skill, with no separate memory server or background runtime.
+
+```mermaid
+flowchart TD
+    A["Agent session: task, decisions and project context"]
+    B["Memory operations: capture, type, compress and update"]
+    C["Project memory: .nemp/memories.json"]
+    D["Global memory: ~/.nemp/memories.json"]
+    E["Retrieval: recall and keyword-expanded search"]
+    F["Context delivery: results and CLAUDE.md export"]
+    G["Inspection: access log and health checks"]
+
+    A --> B
+    B --> C
+    B --> D
+    C --> E
+    D --> E
+    E --> F
+    C --> F
+    F --> A
+    B --> G
+    E --> G
+```
+
+| Layer | Responsibility | Current implementation |
+|---|---|---|
+| Storage | Keep knowledge beyond a single session | Project and global JSON files |
+| Memory operations | Capture and maintain useful records | Save, update, forget, compression, type inference and conflict hints |
+| Retrieval | Find context for the task at hand | Key lookup and keyword search with synonym expansion |
+| Context delivery | Make stored knowledge available during work | Recall results and a managed `CLAUDE.md` section |
+| Observability | Inspect memory activity and integrity | Agent attribution, access logs and health checks |
+| Integrations | Connect the memory workflow to a host agent | Claude Code commands and skill; OpenClaw skill entry point |
+
+### Storage model
+
+```text
+.nemp/
+  memories.json   # project knowledge and decisions
+  access.log      # memory operation audit trail
+  config.json     # settings such as auto-sync
+  MEMORY.md       # human-readable memory index
+
+~/.nemp/
+  memories.json   # preferences and knowledge shared across projects
+```
+
+A memory carries a key and value plus metadata. This simplified entry illustrates the core fields; save operations also initialize confidence, vitality and relationship metadata.
+
+```json
+{
+  "key": "auth-provider",
+  "value": "NextAuth.js with JWT",
+  "type": "decision",
+  "tags": ["auth"],
+  "agent_id": "nemp-init",
+  "created": "2026-01-31T12:00:00Z",
+  "updated": "2026-02-11T14:00:00Z"
+}
+```
+
+Project memory holds the stack, constraints and decisions for one codebase. Global memory holds preferences that apply across projects. You control the files: inspect them in an editor, version them with your project, or keep `.nemp/` in `.gitignore`.
+
+### Memory lifecycle
+
+1. **Capture** project facts, explicit decisions and user preferences through initialization or save commands.
+2. **Structure** each entry with a descriptive key, compact value, type and agent attribution.
+3. **Persist** it in the appropriate project or global store.
+4. **Retrieve** relevant entries when a task needs context, using key lookup or expanded keywords.
+5. **Apply** the retrieved context in the session, or export project memory into the managed `CLAUDE.md` section.
+6. **Maintain** the store through updates, deletion, conflict hints and health checks.
+
+The host agent performs these steps when it follows Nemp's commands or skill instructions. Automation depends on that integration and its settings. Shared files and agent IDs support handoffs; coordinated concurrent writes require additional care because the current store has no transactional locking.
+
+---
+
+## Integrations
+
+The storage is plain JSON. Each host still needs instructions for reading, updating and using it; a portable file format does not automatically provide a native integration.
+
+| Agent or tool | Current status | How it connects |
+|---|---|---|
+| Claude Code | Packaged command and skill integration | `/nemp:*` commands, project/global memory and `CLAUDE.md` synchronization |
+| OpenClaw | Skill entry point included | Root `SKILL.md`; see [OpenClaw setup](#openclaw) |
+| Codex CLI, Cursor, Windsurf | Pro export instruction files exist; broader integration is in development | See [Nemp Pro and the architecture roadmap](#nemp-pro-and-the-architecture-roadmap) |
+| Other file-capable agents | Manual adaptation | Read the memory files and adapt the [memory skill](skills/nemp-memory/SKILL.md) and [command instructions](commands) to the host |
+
+For two agents to share project memory, point them at the same project store or explicitly transfer those files. Local storage does not provide automatic synchronization between machines.
 
 ---
 
 ## Quick start
 
-```bash
+Start with the Claude Code integration to use the memory lifecycle through slash commands.
+
+```text
 # 1. Install
 /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
 /plugin install nemp
@@ -55,15 +148,15 @@ Nemp keeps that context in plain JSON inside your project, lets you search it, a
 /nemp:auto-sync on
 ```
 
-That's it. Next session, find anything with `/nemp:context <topic>`.
+In a later session, retrieve relevant memory with `/nemp:context <topic>`.
 
 Windows or marketplace trouble? See [other install methods](#installation) and [Troubleshooting](docs/TROUBLESHOOTING.md).
 
 ---
 
-## What you get
+## Core memory capabilities
 
-### 1. One-command project setup
+### 1. Capture project knowledge
 
 <p align="center">
   <img src="assets/demos/nemp-init-demo-optimized.gif" alt="Auto-init demo" width="100%"/>
@@ -82,7 +175,7 @@ Package manager: npm
 Saved 6 memories.
 ```
 
-### 2. Compact, typed memories
+### 2. Structure durable knowledge
 
 `/nemp:save <key> <value>` stores a memory with:
 
@@ -91,7 +184,7 @@ Saved 6 memories.
 - **Attribution** - which agent wrote it (`main`, `nemp-init`, `backend`...), so multi-agent projects stay traceable.
 - **A conflict hint** - if a related key already says something different, Nemp warns you when you save.
 
-### 3. Context search that expands your query
+### 3. Retrieve relevant context
 
 <p align="center">
   <img src="assets/demos/nemp-context-demo.gif" alt="Context search demo" width="100%"/>
@@ -109,7 +202,9 @@ auth-middleware  Protects /api routes except /auth/*
 
 Search is keyword-based with a built-in synonym map. It runs locally and needs no embeddings or model downloads.
 
-### 4. CLAUDE.md that stays current
+### 4. Deliver context to the agent
+
+In the Claude Code integration, Nemp connects the memory store to a managed section of `CLAUDE.md`:
 
 | Command | What it does |
 |---|---|
@@ -119,7 +214,7 @@ Search is keyword-based with a built-in synonym map. It runs locally and needs n
 
 Your own rules at the top of `CLAUDE.md` are never touched. Nemp only manages its own section.
 
-### 5. Suggestions from your work
+### 5. Suggest memories from activity
 
 <p align="center">
   <img src="assets/demos/nemp-suggest-demo-optimized.gif" alt="Memory suggestions demo" width="100%"/>
@@ -129,18 +224,20 @@ Your own rules at the top of `CLAUDE.md` are never touched. Nemp only manages it
 
 Activity capture is opt-in with `/nemp:auto-capture on` and is still experimental.
 
-### 6. Audit trail and health check
+### 6. Inspect activity and memory health
 
-- Every read, write and delete is logged to `.nemp/access.log`. View it with `/nemp:log`, filter by agent, or tail recent entries.
+- Memory instructions include logging reads, writes and deletes to `.nemp/access.log`. View it with `/nemp:log`, filter by agent, or tail recent entries. Direct edits outside those workflows are not automatically logged.
 - `/nemp:health` checks the store: valid JSON, empty or oversized values, duplicate keys, stale `CLAUDE.md` or `MEMORY.md`, and gives a score out of 80.
 
-### 7. Global memory
+### 7. Carry preferences across projects
 
-Preferences that follow you across projects - "prefers Bun", "always use strict TypeScript" - go in `~/.nemp/` with `/nemp:save-global`. Project memory wins when both have an answer.
+Preferences that follow you across projects - "prefers Bun", "always use strict TypeScript" - go in `~/.nemp/` with `/nemp:save-global`. Keep project-specific decisions in the project store and general preferences in the global store.
 
 ---
 
 ## Commands
+
+The following commands use the Claude Code integration's syntax.
 
 | Area | Command | What it does |
 |---|---|---|
@@ -162,70 +259,38 @@ Preferences that follow you across projects - "prefers Bun", "always use strict 
 
 ---
 
-## How it works
+## How Nemp complements instruction files
 
-Nemp is a set of Claude Code slash commands and one skill. When you run a command, Claude follows its instructions to read and write small files in your project. There is no background process, server or database.
+Instruction files tell an agent how to work. Nemp adds a workflow for maintaining and retrieving the knowledge that work produces.
 
-```
-.nemp/
-  memories.json   # project memories
-  access.log      # read / write / delete audit trail
-  config.json     # settings such as auto-sync
-  MEMORY.md       # human-readable index of memories
-
-~/.nemp/
-  memories.json   # global memories
-```
-
-A memory is plain, readable JSON:
-
-```json
-{
-  "key": "auth-provider",
-  "value": "NextAuth.js with JWT",
-  "type": "decision",
-  "tags": ["auth"],
-  "agent_id": "nemp-init",
-  "created": "2026-01-31T12:00:00Z",
-  "updated": "2026-02-11T14:00:00Z"
-}
-```
-
-You own the files. Commit them to share context with your team, or add `.nemp/` to `.gitignore` to keep it personal. Delete everything with `rm -rf .nemp`.
-
----
-
-## Nemp vs. CLAUDE.md alone
-
-| | CLAUDE.md alone | With Nemp |
+| Need | Instruction files maintained by hand | With Nemp's memory workflow |
 |---|---|---|
-| Stack captured | You write it | `/nemp:init` detects it |
-| Adding a decision | Edit the file by hand | `/nemp:save`, compressed and typed |
-| Finding something | Scroll or grep | `/nemp:context` with related terms |
-| Keeping it current | Remember to update | Auto-sync on every change |
-| Drift from real config | Unnoticed | `/nemp:sync` flags mismatches |
-| Who changed what | Git blame at best | Agent attribution and access log |
-| Works across projects | No | Global memory |
+| Capture the stack | Write and update it yourself | Initialize memories from project configuration |
+| Preserve a decision | Add prose to the file | Save a compact, typed entry |
+| Find task context | Read or search the document | Retrieve matching memories with related terms |
+| Track authorship | Inspect version history | Store agent attribution and operation logs |
+| Keep context current | Edit instructions after changes | Sync a managed section in the Claude Code integration |
+| Reuse preferences | Copy them between projects | Keep a separate global memory store |
 
 ---
 
 ## Installation
 
-### Plugin marketplace (recommended)
+### Claude Code marketplace
 
 ```bash
 /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
 /plugin install nemp
 ```
 
-### Windows, if the marketplace command fails
+### Claude Code on Windows
 
 ```bash
 /plugin marketplace add https://github.com/SukinShetty/Nemp-memory.git
 /plugin install nemp
 ```
 
-### Manual install
+### Manual Claude Code install
 
 ```bash
 cd ~/.claude/plugins/marketplaces
@@ -240,7 +305,7 @@ Problems? [Troubleshooting](docs/TROUBLESHOOTING.md) covers EPERM errors on Wind
 
 ### OpenClaw
 
-Nemp also runs as an OpenClaw skill, using the same `.nemp/memories.json`.
+The repository includes a root `SKILL.md` entry point for OpenClaw. Its metadata identifies Nemp as a local memory skill; the detailed memory workflow is in [skills/nemp-memory/SKILL.md](skills/nemp-memory/SKILL.md) and the [command definitions](commands).
 
 <p align="center">
   <img src="assets/images/nemp-openclaw-telegram.jpeg" alt="Nemp running on OpenClaw via Telegram" width="400"/>
@@ -252,38 +317,47 @@ git clone https://github.com/SukinShetty/Nemp-memory.git ~/.openclaw/workspace/s
 
 On Windows the path is `C:\Users\<you>\.openclaw\workspace\skills\nemp-memory`. The repo includes the root `SKILL.md` OpenClaw needs. Restart OpenClaw and check that `nemp-memory` appears in your skills.
 
-Save in Claude Code, recall in OpenClaw, and the other way round. OpenClaw uses the same [AgentSkills](https://agentskills.io) standard, and Nemp only needs an agent that can read and write files.
+For shared memory, configure the agent to use the same project's `.nemp/memories.json` and follow the memory instructions. Check that it can read and save an entry in that location; slash-command availability and automation depend on the host.
 
 ---
 
 ## Use cases
 
-**Onboarding.** A new developer runs `/nemp:init` on day one and Claude already knows the stack, database, auth approach and structure.
+**Session continuity.** Save an architecture decision today and retrieve its rationale when work resumes next week.
 
-**Switching projects.** `/nemp:recall stack` in `~/client-a` says "Next.js, Stripe, PostgreSQL"; in `~/client-b` it says "React, Supabase, Tailwind". Each project remembers itself.
+**Agent handoffs.** Leave project constraints and decisions in a shared store so the next agent can pick up the relevant context. Agent attribution records who wrote each entry.
 
-**Decision history.** Save "REST, not GraphQL - team decision Jan 2026" today. Three months later `/nemp:context api` finds it, with no Slack archaeology.
+**Project onboarding.** Capture the stack once, then give later sessions a starting point for understanding the codebase.
+
+**Personal working preferences.** Keep general conventions in global memory while each project retains its own technical choices.
 
 ---
 
 ## Privacy
 
-Everything stays on your machine. Nemp makes no network calls, sends no telemetry and needs no account. Your memories are files in your project and your home folder, readable in any editor.
+The core memory workflow stores data in your project and home folder and requires no hosted memory service or separate memory API key. The files are readable in any editor. When an agent reads those memories, its own model provider and data-handling settings still apply.
 
 ---
 
-## Nemp Pro (coming soon)
+## Nemp Pro and the architecture roadmap
 
-Nemp Pro is in development and adds a memory intelligence layer on top of the free plugin, including cross-tool export and import for Codex CLI, Cursor and Windsurf. The Pro commands in this repo (`/nemp:cortex`, `/nemp:foresight`, `/nemp:decay`, `/nemp:import`) currently show a notice only. Follow the repo or [nemp.dev](https://nemp.dev) for launch news.
+The current foundation is persistent storage, typed records, local retrieval and agent-facing context delivery. Nemp Pro is in development to extend this foundation with memory intelligence and cross-tool workflows.
 
----
+| Area | Repository status |
+|---|---|
+| Confidence, vitality and relationship metadata | Save instructions initialize these fields; retrieval instructions update usage counters |
+| Cortex, foresight, decay and import | The corresponding commands currently display Pro notices |
+| Export to Codex CLI, Cursor and Windsurf | [Pro export instructions](commands/nemp-pro-export.md) and [auto-export configuration instructions](commands/auto-export.md) are present; these are not a standalone cross-tool runtime |
+| Advanced memory intelligence | Described in the [Cortex design specification](nemp-cortex-complete-spec.md); the specification is broader than the current working commands |
 
-## Roadmap
+The presence of metadata fields and design specifications does not mean every planned intelligence feature is operational. Follow the repository or [nemp.dev](https://nemp.dev) for release updates.
 
-- More stack detection beyond `package.json` (Python, Go, Rust)
+Further work includes:
+
+- Broader stack detection beyond `package.json` (Python, Go, Rust)
 - Svelte and Angular detection
 - More reliable activity capture
-- Cleaner skill instructions for AgentSkills-compatible agents
+- Clearer, portable skill instructions for additional agent hosts
 
 Ideas welcome in [Issues](https://github.com/SukinShetty/Nemp-memory/issues).
 
@@ -311,5 +385,5 @@ MIT © 2026 [Sukin Shetty](https://github.com/SukinShetty). Free and open source
   <p>Built by <a href="https://www.linkedin.com/in/sukinshetty-1984/">Sukin Shetty</a> ·
   <a href="https://x.com/sukin_s">X</a> ·
   <a href="mailto:contact@nemp.dev">contact@nemp.dev</a></p>
-  <p><strong>Stop repeating yourself. Start coding faster.</strong></p>
+  <p><strong>Give every session a memory to build on.</strong></p>
 </div>
