@@ -7,8 +7,8 @@
     </tr>
   </table>
 
-  <p><strong>Local project memory for Claude Code and OpenClaw.</strong></p>
-  <p>Save a decision once. Every new session starts knowing your stack, your rules and why things are the way they are.</p>
+  <p><strong>A local-first memory layer for AI agents.</strong></p>
+  <p>Persistent project knowledge, decisions and preferences — stored locally, ready for your next agent session.</p>
 
   <p>
     <img src="https://img.shields.io/badge/version-0.3.0-blue.svg" alt="Version 0.3.0">
@@ -27,18 +27,22 @@
 
 ## Why Nemp
 
-Claude Code starts every session from zero. You end up re-explaining the same things:
+AI agents need context that lasts beyond a single session. Without persistent memory, you end up re-explaining the same things:
 
 - your stack and project structure
 - decisions you already made, and why
 - conventions, preferences and known gotchas
 - what you were working on yesterday
 
-Nemp keeps that context in plain JSON inside your project, lets you search it, and keeps your `CLAUDE.md` in step with it. No servers, no database, no API keys, no dependencies.
+Nemp gives that context a persistent home in plain JSON inside your project. Save typed memories, retrieve relevant decisions, and track which agent wrote them. The files stay under your control, with no separate memory server or database to manage.
+
+Claude Code provides the current slash-command integration and `CLAUDE.md` sync; an OpenClaw skill entry point is also included. Other agents can read the local files with suitable instructions, while broader cross-tool integrations are in development.
 
 ---
 
 ## Quick start
+
+Get started with the Claude Code integration:
 
 ```bash
 # 1. Install
@@ -164,7 +168,7 @@ Preferences that follow you across projects - "prefers Bun", "always use strict 
 
 ## How it works
 
-Nemp is a set of Claude Code slash commands and one skill. When you run a command, Claude follows its instructions to read and write small files in your project. There is no background process, server or database.
+Nemp stores persistent memory in small local files. Its command and skill instructions tell the host agent how to save, retrieve and maintain that memory. In the Claude Code integration, slash commands provide the interface to those operations. There is no background process, server or database.
 
 ```
 .nemp/
@@ -274,7 +278,7 @@ Everything stays on your machine. Nemp makes no network calls, sends no telemetr
 
 ## Nemp Pro (coming soon)
 
-Nemp Pro is in development and adds a memory intelligence layer on top of the free plugin, including cross-tool export and import for Codex CLI, Cursor and Windsurf. The Pro commands in this repo (`/nemp:cortex`, `/nemp:foresight`, `/nemp:decay`, `/nemp:import`) currently show a notice only. Follow the repo or [nemp.dev](https://nemp.dev) for launch news.
+Nemp Pro is in development and adds a memory intelligence layer on top of the free memory layer, including cross-tool export and import for Codex CLI, Cursor and Windsurf. The Pro commands in this repo (`/nemp:cortex`, `/nemp:foresight`, `/nemp:decay`, `/nemp:import`) currently show a notice only. Follow the repo or [nemp.dev](https://nemp.dev) for launch news.
 
 ---
 
@@ -311,5 +315,5 @@ MIT © 2026 [Sukin Shetty](https://github.com/SukinShetty). Free and open source
   <p>Built by <a href="https://www.linkedin.com/in/sukinshetty-1984/">Sukin Shetty</a> ·
   <a href="https://x.com/sukin_s">X</a> ·
   <a href="mailto:contact@nemp.dev">contact@nemp.dev</a></p>
-  <p><strong>Stop repeating yourself. Start coding faster.</strong></p>
+  <p><strong>Give every agent session a memory to build on.</strong></p>
 </div>
