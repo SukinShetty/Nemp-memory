@@ -1,17 +1,19 @@
 ---
-description: "View captured activity log"
+description: "Experimental: View captured activity log"
 argument-hint: "[--clear|--stats]"
 ---
 
-# /nemp-pro:activity
+# /nemp:activity
+
+> Experimental activity-log viewer. The `.nemp-pro/` path is a legacy directory name and does not imply an active Pro license.
 
 View or manage the captured activity log.
 
 ## Usage
 ```
-/nemp-pro:activity          # View recent activities
-/nemp-pro:activity --clear  # Clear the activity log
-/nemp-pro:activity --stats  # Show activity statistics
+/nemp:activity          # View recent activities
+/nemp:activity --clear  # Clear the activity log
+/nemp:activity --stats  # Show activity statistics
 ```
 
 ## Instructions
@@ -77,8 +79,8 @@ If no activity log exists or is empty:
 ```
 No activities captured yet.
 
-Enable auto-capture: /nemp-pro:auto-capture on
+Enable auto-capture: /nemp:auto-capture on
 ```
 
 ## Related Commands
-- `/nemp-pro:auto-capture` - Toggle auto-capture on/off
+- `/nemp:auto-capture` - Toggle auto-capture on/off

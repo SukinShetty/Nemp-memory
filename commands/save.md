@@ -184,7 +184,7 @@ After logging, scan existing memories for key-family overlap to detect potential
    - Contradicting instructions ("always" vs "never", "use X" vs "use Y")
 4. If a potential conflict is detected, append a warning to the output:
    ```
-   ⚠️ Possible conflict with [other-key] — check /nemp:cortex resolve
+   ⚠️ Possible conflict with [other-key] — review both values with /nemp:recall before updating. Automated conflict resolution is not available in this build.
    ```
 
 Do NOT block the save. This is an informational warning only.

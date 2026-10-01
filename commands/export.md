@@ -277,14 +277,8 @@ After exporting, remind the user:
 
 ---
 
-## Nemp Pro
+## Nemp Pro (planned)
 
-Export to Codex, Cursor, and Windsurf with [Nemp Pro](https://nemp.dev/pro):
+Cross-tool export/import is in development. This command currently accepts only the default mode and `--replace`; provider flags are not implemented here. Prototype provider-export instructions live in [nemp-pro-export.md](nemp-pro-export.md).
 
-- `/nemp:export --codex` — Export to Codex CLI (AGENTS.md)
-- `/nemp:export --cursor` — Export to Cursor (.cursor/rules/nemp-memory.mdc)
-- `/nemp:export --windsurf` — Export to Windsurf (.windsurfrules)
-- `/nemp:export --all` — Sync all four files at once
-- `/nemp:import` — Import memories back from any provider
-
-Already have a license? Run `/nemp:activate <key>` to unlock.
+See the [roadmap](../docs/ROADMAP.md). `/nemp:activate` does not verify or unlock Pro in this repository.

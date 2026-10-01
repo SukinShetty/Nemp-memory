@@ -5,7 +5,7 @@ argument-hint: "[--tail N | --agent <name> | --clear]"
 
 # /nemp:log
 
-View the memory access audit trail showing all reads, writes, and deletes.
+View reads, writes and deletes recorded by participating Nemp command instructions. This log is not a complete record of every filesystem access or manual edit.
 
 ## Usage
 /nemp:log                  # Show last 20 entries

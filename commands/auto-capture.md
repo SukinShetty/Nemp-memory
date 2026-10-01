@@ -1,18 +1,20 @@
 ---
-description: "Enable or disable automatic activity capture"
+description: "Experimental: Enable or disable automatic activity capture"
 argument-hint: "[on|off|status]"
 ---
 
-# /nemp-pro:auto-capture
+# /nemp:auto-capture
+
+> Experimental: this command configures capture in `.nemp-pro/`, a legacy local path. Hook registration and execution are not verified in this build. A saved enabled flag does not prove that activity is being captured.
 
 Toggle automatic activity capture on or off.
 
 ## Usage
 ```
-/nemp-pro:auto-capture on      # Enable auto-capture
-/nemp-pro:auto-capture off     # Disable auto-capture
-/nemp-pro:auto-capture status  # Check current status
-/nemp-pro:auto-capture         # Show status (same as status)
+/nemp:auto-capture on      # Enable auto-capture
+/nemp:auto-capture off     # Disable auto-capture
+/nemp:auto-capture status  # Check current status
+/nemp:auto-capture         # Show status (same as status)
 ```
 
 ## Arguments
@@ -22,7 +24,7 @@ Toggle automatic activity capture on or off.
 
 ## Instructions
 
-When the user invokes `/nemp-pro:auto-capture`, follow these steps:
+When the user invokes `/nemp:auto-capture`, follow these steps:
 
 ### 1. Parse Argument
 Extract the action: `on`, `off`, or `status` (default to `status` if empty).
@@ -55,15 +57,15 @@ Read or create `.nemp-pro/config.json`, set `autoCapture.enabled = true`, write 
 
 Confirm:
 ```
-Auto-capture ENABLED
+Auto-capture preference enabled (experimental)
 
-What will be captured:
+Configured capture targets (verify the hook before relying on capture):
   - Edit: File modifications
   - Write: New files created
   - Bash: Git commits, npm/bun commands
 
 Activities saved to: .nemp-pro/activity.log
-Review with: /nemp-pro:activity
+Review with: /nemp:activity
 ```
 
 **For `off`:**
@@ -88,9 +90,9 @@ Auto-capture Status
   Entries captured: N
 
 Commands:
-  /nemp-pro:auto-capture on   - Enable
-  /nemp-pro:auto-capture off  - Disable
-  /nemp-pro:activity          - View captured activities
+  /nemp:auto-capture on   - Enable
+  /nemp:auto-capture off  - Disable
+  /nemp:activity          - View captured activities
 ```
 
 ### 4. Initialize Config (if not exists)
@@ -125,22 +127,22 @@ Use the Read tool to check for existing config, then Write tool to update it.
 ## Example Interactions
 
 ### Enable auto-capture
-User: `/nemp-pro:auto-capture on`
+User: `/nemp:auto-capture on`
 
 ```
-Auto-capture ENABLED
+Auto-capture preference enabled (experimental)
 
-What will be captured:
+Configured capture targets (verify the hook before relying on capture):
   - Edit: File modifications
   - Write: New files created
   - Bash: Git commits, npm/bun commands
 
 Activities saved to: .nemp-pro/activity.log
-Review captured activities: /nemp-pro:activity
+Review captured activities: /nemp:activity
 ```
 
 ### Disable auto-capture
-User: `/nemp-pro:auto-capture off`
+User: `/nemp:auto-capture off`
 
 ```
 Auto-capture DISABLED
@@ -149,7 +151,7 @@ No automatic activity capture will occur.
 ```
 
 ### Check status
-User: `/nemp-pro:auto-capture status`
+User: `/nemp:auto-capture status`
 
 ```
 Auto-capture Status
@@ -159,10 +161,10 @@ Auto-capture Status
   Log: .nemp-pro/activity.log (12 entries)
 
 Commands:
-  /nemp-pro:auto-capture off  - Disable
-  /nemp-pro:activity          - View log
+  /nemp:auto-capture off  - Disable
+  /nemp:activity          - View log
 ```
 
 ## Related Commands
-- `/nemp-pro:activity` - View captured activity log
-- `/nemp-pro:clear` - Clear activity log
+- `/nemp:activity` - View captured activity log
+- `/nemp:activity --clear` - Clear activity log

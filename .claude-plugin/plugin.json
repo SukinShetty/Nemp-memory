@@ -1,7 +1,7 @@
 {
   "name": "nemp",
   "version": "0.3.0",
-  "description": "Nemp Memory — Cognitive memory layer for AI agents across every platform. Local-first, zero cloud, works with Claude, Codex, Cursor, and Windsurf.",
+  "description": "Nemp \u2014 Agentic memory that evolves with your work. Local project context, decisions and preferences, with agent-guided retrieval and review.",
   "author": {
     "name": "Sukin Shetty",
     "email": "contact@nemp.dev",

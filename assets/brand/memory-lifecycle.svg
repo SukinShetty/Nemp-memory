@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="260" viewBox="0 0 1200 260" role="img" aria-labelledby="title desc">
+  <title id="title">Nemp memory lifecycle</title>
+  <desc id="desc">Capture, structure, retrieve, review and refine. A user-directed loop that keeps local memory current as work changes.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#946DFF"/><stop offset="1" stop-color="#43B4F5"/></linearGradient>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L6 3.5 L0 7" fill="none" stroke="#99A5BD" stroke-width="1.5"/></marker>
+  </defs>
+  <rect x="1" y="1" width="1198" height="258" rx="22" fill="#111625" stroke="#33405A"/>
+  <text x="44" y="42" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#B7C3DE">A LOCAL MEMORY LOOP</text>
+  <g stroke="#99A5BD" stroke-width="2" marker-end="url(#arrow)"><path d="M240 120 H264"/><path d="M470 120 H494"/><path d="M700 120 H724"/><path d="M930 120 H954"/></g>
+  <g font-family="Arial, sans-serif">
+    <g transform="translate(40 72)"><rect width="196" height="101" rx="12" fill="#211D37" stroke="#7450C7"/><text x="18" y="27" font-size="12" fill="#BB9AFF">01</text><text x="18" y="53" font-size="23" font-weight="700" fill="#F5F7FE">Capture</text><text x="18" y="78" font-size="15" fill="#BAC4DB">Keep what matters</text></g>
+    <g transform="translate(270 72)"><rect width="196" height="101" rx="12" fill="#1C2039" stroke="#595DC4"/><text x="18" y="27" font-size="12" fill="#ADAFFF">02</text><text x="18" y="53" font-size="23" font-weight="700" fill="#F5F7FE">Structure</text><text x="18" y="78" font-size="15" fill="#BAC4DB">Make it usable</text></g>
+    <g transform="translate(500 72)"><rect width="196" height="101" rx="12" fill="#17263D" stroke="#437BC1"/><text x="18" y="27" font-size="12" fill="#92BFFF">03</text><text x="18" y="53" font-size="23" font-weight="700" fill="#F5F7FE">Retrieve</text><text x="18" y="78" font-size="15" fill="#BAC4DB">Find useful context</text></g>
+    <g transform="translate(730 72)"><rect width="196" height="101" rx="12" fill="#162C3A" stroke="#3D87A8"/><text x="18" y="27" font-size="12" fill="#8CD8F7">04</text><text x="18" y="53" font-size="23" font-weight="700" fill="#F5F7FE">Review</text><text x="18" y="78" font-size="15" fill="#BAC4DB">Check what changed</text></g>
+    <g transform="translate(960 72)"><rect width="196" height="101" rx="12" fill="#163038" stroke="#3A928A"/><text x="18" y="27" font-size="12" fill="#8EDDD2">05</text><text x="18" y="53" font-size="23" font-weight="700" fill="#F5F7FE">Refine</text><text x="18" y="78" font-size="15" fill="#BAC4DB">Update or remove</text></g>
+    <path d="M1058 184 V207 H138 V184" fill="none" stroke="url(#accent)" stroke-width="2"/>
+    <rect x="440" y="191" width="320" height="32" rx="16" fill="#111625"/>
+    <text x="600" y="213" text-anchor="middle" font-size="15" fill="#CBD4E9">Repeat as your work evolves</text>
+  </g>
+</svg>

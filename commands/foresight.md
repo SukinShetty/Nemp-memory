@@ -1,14 +1,18 @@
 ---
-description: "Predict and return only memories relevant to your prompt (Pro)"
+description: "Nemp Foresight — planned task-aware retrieval"
 argument-hint: ""
 ---
 
 # /nemp:foresight
 
-🔒 **Nemp Foresight is a Pro feature.**
+**Planned Nemp Pro feature. Not implemented in this build.**
 
-Foresight scores every memory against your prompt's intent and returns only the relevant subset — with domain detection, vitality modifiers, and token savings stats.
+Foresight is intended to help select context for a task using relevance and feedback. This build does not implement predictive retrieval or measured token savings.
 
-Upgrade at [nemp.dev/pro](https://nemp.dev/pro) to unlock.
+## Instructions
 
-Already have a license? Run `/nemp:activate <your-license-key>` to unlock.
+Show the availability notice above and stop. Do not simulate successful execution, alter memories or claim a license unlocks this command.
+
+The intended future upgrade path is [nemp.dev](https://nemp.dev) → purchase and license delivery when available → `/nemp:activate` in the terminal agent. Activation and feature delivery are not implemented in this public repository.
+
+Continue with the [current Open commands](../docs/COMMANDS.md), or read the [roadmap](../docs/ROADMAP.md).

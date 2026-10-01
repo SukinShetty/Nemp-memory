@@ -1,256 +1,69 @@
-# Troubleshooting
+# Troubleshooting Nemp
 
-Fixes for the most common install and loading problems. If none of these help, [open an issue](https://github.com/SukinShetty/Nemp-memory/issues).
+Start with the smallest check. Keep a backup of memory and hand-written instructions before reinstalling or changing files.
 
-## Commands not working?
+## Commands do not appear
 
-**Step 1: Restart Claude Code**
-```bash
-exit
-claude
-```
+Inside Claude Code, open `/plugin` and confirm `nemp@nemp-memory` is installed and enabled. Restart the session if needed. Run `/nemp:list` from the intended project directory.
 
-**Step 2: Verify installation**
-```bash
-/plugin list
-# Should show: nemp@nemp-memory
-```
+If the marketplace is missing:
 
-**Step 3: Clean reinstall**
-```bash
-/plugin uninstall nemp
-/plugin marketplace remove nemp-memory
-exit
-claude
+```text
 /plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-/plugin install nemp
-exit
-claude
+/plugin install nemp@nemp-memory
 ```
 
-## Windows Permission Error (EPERM)
+On Windows, try the repository URL ending in `.git` if cloning fails. Follow [Claude Code's current plugin documentation](https://code.claude.com/docs/en/discover-plugins) for host-specific errors or managed policies.
 
-If you see an error like:
-```
-Error: EPERM: operation not permitted, open 'C:\Users\...'
-```
+## A command beginning with nemp-pro is unknown
 
-**What's happening:** Windows is blocking file access, often due to antivirus or file locks.
+The public plugin name is `nemp`. Use `/nemp:auto-capture`, `/nemp:activity` and `/nemp:suggest`. Prototype provider export retains the filename-based name `/nemp:nemp-pro-export`; it is experimental. The `.nemp-pro/` data directory is a legacy path, not a separate installed plugin. See [Commands](COMMANDS.md).
 
-**Fix it:**
+## Git cannot clone the marketplace
 
-**Step 1:** Close any programs that might have the file open (VS Code, File Explorer)
+In your shell, check `git --version`, then test access to the repository:
 
-**Step 2:** Run Claude Code as Administrator
-- Right-click on your terminal (PowerShell/CMD)
-- Select "Run as administrator"
-- Try the command again
-
-**Step 3:** If still failing, check Windows Defender
-- Open Windows Security → Virus & threat protection
-- Click "Manage settings" under Virus & threat protection settings
-- Add your project folder to exclusions (scroll to "Exclusions")
-
-**Step 4:** Verify it worked
 ```bash
-/nemp:list
-# Should show your memories without errors
+git ls-remote https://github.com/SukinShetty/Nemp-memory.git HEAD
 ```
 
----
+Use the reported Git error to distinguish connectivity, authentication or policy problems. Do not disable certificate verification or bypass your organization's network controls. Ask your administrator about a required proxy rather than copying an arbitrary global proxy setting.
 
-## Commands Not Recognized
+## File access or EPERM errors
 
-If you type `/nemp:save` and nothing happens, or you see:
-```
-Unknown command: nemp:save
-```
+Check which exact file was denied and whether it is locked by an editor or another process. Confirm your user can write to the project directory. Retry after closing a process holding the file. Avoid running the whole agent as Administrator or disabling antivirus as a default fix; on managed devices, involve your administrator.
 
-**What's happening:** The plugin isn't loaded or registered properly.
+## Memories seem missing
 
-**Fix it:**
+Confirm the current project directory and inspect the reported source. Project memory is in `.nemp/memories.json`; global memory is in `~/.nemp/memories.json`. Outside a Git repository, `save` defaults to global storage. Use `/nemp:list-global` to inspect it.
 
-**Step 1:** Check if the plugin is installed
-```bash
-/plugin list
-```
-You should see `nemp` in the list. If not, continue to Step 2.
+If the file exists, back it up before repairing JSON. The current commands describe multiple data shapes; do not replace a store with an empty one to silence a parse error. See [Architecture](ARCHITECTURE.md).
 
-**Step 2:** Reinstall the plugin
-```bash
-/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-/plugin install nemp
-```
+## CLAUDE.md is stale or changed unexpectedly
 
-**Step 3:** Restart Claude Code (required!)
-```bash
-exit
-claude
-```
+`/nemp:auto-sync status` shows whether supported writes should refresh context. It is not a file watcher. Run `/nemp:export` to refresh the default section and inspect the diff.
 
-**Step 4:** Verify commands are available
-```bash
-/nemp:list
-# Should work now
-```
+`/nemp:export --replace` overwrites the entire file. If it removed hand-written content, restore from your backup or version control. Nemp does not supply automatic undo. Keep recovery copies before retrying export or sync.
 
-**Still not working?** Try a clean reinstall:
-```bash
-/plugin uninstall nemp
-/plugin marketplace remove nemp-memory
-exit
-claude
-/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-/plugin install nemp
-exit
-claude
-```
+## Activity capture or auto-export does nothing
 
----
+These are experimental. Enabling a config flag is not proof that a hook or trigger is running. The current hook path/executable wiring and auto-export triggers need validation; see [Release checks](RELEASE_CHECKLIST.md). Save important context explicitly with `/nemp:save` while those paths are being tested.
 
-## Marketplace Clone Failures
+## Pro says it is not available
 
-If you see errors like:
-```
-Error: Failed to clone marketplace repository
-fatal: could not read from remote repository
-```
-or
-```
-Error: Repository not found
-```
+That is expected in this build. Cortex, Foresight, Decay and Import are notices, and `/nemp:activate` does not verify or unlock a license. Follow [nemp.dev](https://nemp.dev) and the [roadmap](ROADMAP.md) for the intended future flow. Do not paste a license key into public issues or logs.
 
-**What's happening:** Git can't access the GitHub repository.
+## Reinstall or uninstall
 
-**Fix it:**
+Use the host's plugin management commands rather than deleting broad cache folders:
 
-**Step 1:** Check your internet connection
-```bash
-ping github.com
-```
-
-**Step 2:** Verify Git is installed
-```bash
-git --version
-# Should show: git version 2.x.x
-```
-
-If Git isn't installed, download it from [git-scm.com](https://git-scm.com/downloads)
-
-**Step 3:** Try cloning manually to test access
-```bash
-git clone https://github.com/SukinShetty/Nemp-memory.git ~/test-nemp
-```
-
-If this fails, you may have:
-- Firewall blocking GitHub
-- Corporate proxy issues
-- GitHub rate limiting
-
-**Step 4:** For corporate networks/proxies, configure Git
-```bash
-git config --global http.proxy http://your-proxy:port
-```
-
-**Step 5:** Once Git works, retry installation
-```bash
-/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-/plugin install nemp
-exit
-claude
-```
-
----
-
-## Plugin Not Loading
-
-If the plugin appears installed but commands don't work:
-```bash
-/plugin list
-# Shows: nemp@nemp-memory ✓
-
-/nemp:list
-# But this does nothing or shows error
-```
-
-**What's happening:** The plugin files exist but aren't being loaded by Claude Code.
-
-**Fix it:**
-
-**Step 1:** Clear the plugin cache
-```bash
-# On Mac/Linux:
-rm -rf ~/.claude/plugins/cache/nemp*
-
-# On Windows (PowerShell):
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\plugins\cache\nemp*"
-```
-
-**Step 2:** Restart Claude Code
-```bash
-exit
-claude
-```
-
-**Step 3:** If still not working, check for corrupted installation
-```bash
-/plugin uninstall nemp
+```text
+/plugin uninstall nemp@nemp-memory
 /plugin marketplace remove nemp-memory
 ```
 
-**Step 4:** Clear all plugin data and reinstall fresh
-```bash
-# On Mac/Linux:
-rm -rf ~/.claude/plugins/nemp*
-rm -rf ~/.claude/marketplace/nemp*
+Then reinstall using the setup guide if needed. Plugin removal and memory deletion are separate: preserve `.nemp/`, `.nemp-pro/` and `~/.nemp/` unless you intentionally want to remove their data. Inspect their contents and make a backup before deletion.
 
-# On Windows (PowerShell):
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\plugins\nemp*"
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\marketplace\nemp*"
-```
+## Report a reproducible issue
 
-**Step 5:** Restart and reinstall
-```bash
-exit
-claude
-/plugin marketplace add https://github.com/SukinShetty/Nemp-memory
-/plugin install nemp
-exit
-claude
-```
-
-**Step 6:** Verify everything works
-```bash
-/plugin list
-# Should show: nemp@nemp-memory
-
-/nemp:list
-# Should show your memories (or empty list if new install)
-```
-
----
-
-## Uninstalling Nemp
-
-**Remove plugin:**
-```bash
-/plugin uninstall nemp
-/plugin marketplace remove nemp-memory
-```
-
-**Delete all data (optional):**
-```bash
-# Delete project memories
-rm -rf .nemp
-
-# Delete global memories
-rm -rf ~/.nemp
-```
-
-**Note:** Deleting `.nemp` folders removes ALL saved memories permanently.
-
-## Still having issues?
-
-1. Check Claude Code version (requires v2.0+)
-2. Clear cache: `rm -rf ~/.claude/plugins/cache/nemp*`
-3. [Open an issue on GitHub](https://github.com/SukinShetty/Nemp-memory/issues)
+Include your OS, host version, Nemp version, command, expected result and actual error. Redact memory values, project paths, credentials and private logs. Use [GitHub Issues](https://github.com/SukinShetty/Nemp-memory/issues) for ordinary bugs and [contact@nemp.dev](mailto:contact@nemp.dev) for sensitive reports.

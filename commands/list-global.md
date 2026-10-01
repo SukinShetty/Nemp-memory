@@ -72,7 +72,7 @@ Default sort: by `updated` date (most recent first)
 ## Tips to Show User
 After listing, remind user:
 - Use `/nemp:recall-global <key>` to see full memory content
-- Use `/nemp:forget-global <key>` to delete a global memory
+- Use `/nemp:forget <key>` to request deletion; verify the displayed source is global before confirming
 - Use `/nemp:save-global <key> <new-value>` to update an existing memory
 - Use `/nemp:list` to see both project AND global memories
 

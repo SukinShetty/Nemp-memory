@@ -1,79 +1,36 @@
 ---
-description: "Activate Nemp Pro with your license key"
-argument-hint: "<license-key>"
+description: "Explain Nemp Pro availability and the planned activation flow"
+argument-hint: "[license-key]"
 ---
 
 # /nemp:activate
 
-Activate Nemp Pro by entering your license key. Once activated, all Pro features are unlocked — Cortex, Foresight, Decay, Import, cross-provider Export, and advanced Health diagnostics.
-
-## Usage
-```
-/nemp:activate NEMP-PRO-XXXX-XXXX
-```
+Nemp Pro is in development. This public v0.3.0 build does not implement license verification, Pro installation or feature unlocking.
 
 ## Instructions
 
-### Step 1: Parse the License Key
+When invoked, display this availability notice and stop:
 
-Extract the license key from the argument. If no argument is provided, show:
+```text
+Nemp Pro is not available to activate in this build.
 
-```
-Usage: /nemp:activate <license-key>
+The intended upgrade path is:
+  nemp.dev → purchase Pro when available → receive a license key
+  → /nemp:activate <license-key> in your terminal agent
 
-License keys look like: NEMP-PRO-XXXX-XXXX
-Get yours at nemp.dev/pro
-```
+This repository does not verify a key or unlock Pro features.
+Cortex, Foresight, Decay and Import are planned-feature notices here.
 
-Stop.
-
-### Step 2: Validate Key Format
-
-Check the key format:
-- Must start with `NEMP-PRO-`
-- Followed by exactly 9 characters (letters, numbers, or hyphens)
-
-If the format is invalid:
-
-```
-❌ Invalid license key format.
-
-Keys look like: NEMP-PRO-XXXX-XXXX
-Get yours at nemp.dev/pro
+You can continue using Nemp Open's local-memory commands.
+See nemp.dev and the repository roadmap for availability.
 ```
 
-Stop.
+If an argument was supplied, do not echo, log, save or transmit it. A key's format is not proof of a valid license. Do not create or overwrite `.nemp/license.json`, infer entitlement from an existing file, or claim activation succeeded.
 
-### Step 3: Save License
+If an earlier build wrote a license file, explain that it does not establish a working entitlement in this repository. Leave it unchanged; do not remove user data as part of this notice.
 
-Create or overwrite `.nemp/license.json` with:
+## Related documentation
 
-```json
-{
-  "key": "<license-key>",
-  "plan": "pro",
-  "activated_at": "<current ISO-8601 timestamp>"
-}
-```
-
-### Step 4: Confirm Activation
-
-```
-✅ Nemp Pro activated!
-
-All Pro features are now unlocked:
-  /nemp:cortex      Memory intelligence layer
-  /nemp:foresight   Predictive context loading
-  /nemp:decay       Auto-archive stale memories
-  /nemp:import      Cross-provider import
-  /nemp:export --codex / --cursor / --windsurf / --all
-  /nemp:health --verbose / --fix
-
-License saved to .nemp/license.json
-```
-
-## Related Commands
-
-- `/nemp:health` — Check system status
-- `/nemp:cortex` — Memory intelligence (now unlocked)
-- `/nemp:foresight` — Predictive loading (now unlocked)
+- [Roadmap and intended upgrade flow](../docs/ROADMAP.md)
+- [Current commands](../docs/COMMANDS.md)
+- [Local-memory privacy boundaries](../docs/PRIVACY.md)
