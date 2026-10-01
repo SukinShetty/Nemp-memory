@@ -29,17 +29,23 @@ def prose(text: str) -> str:
     lines = []
     fence = None
     for line in text.splitlines():
-        match = re.match(r'^\s*(`{3,}|~{3,})', line)
+        match = re.match(r'^\s*(`{3,}|~{3,})(.*)$', line)
         if match:
-            marker = match.group(1)[0]
+            run, rest = match.group(1), match.group(2)
             if fence is None:
-                fence = marker
-            elif marker == fence:
+                fence = (run[0], len(run))
+            elif run[0] == fence[0] and len(run) >= fence[1] and not rest.strip():
                 fence = None
             continue
         if fence is None:
             lines.append(line)
     return '\n'.join(lines)
+
+
+def frontmatter(text: str) -> str:
+    """Return only a frontmatter block bounded by standalone delimiters."""
+    match = re.match(r'^---\n(.*?)\n---[ \t]*(?:\n|$)', text, re.S)
+    return match.group(1) if match else ''
 
 
 def heading_ids(text: str) -> set[str]:
@@ -64,7 +70,7 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
         if path.suffix == '.json':
             counts['json_files'] += 1
             try:
-                json.loads(path.read_text())
+                json.loads(path.read_text(encoding='utf-8'))
             except (ValueError, UnicodeDecodeError) as exc:
                 errors.append(f'{rel}: invalid JSON: {exc}')
         if path.suffix == '.svg':
@@ -78,7 +84,7 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
         if path.suffix != '.md':
             continue
         counts['markdown_files'] += 1
-        text = path.read_text()
+        text = path.read_text(encoding='utf-8')
         body = prose(text)
         html = References()
         html.feed(body)
@@ -93,11 +99,11 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
             if not target.exists():
                 errors.append(f'{rel}: missing relative target: {ref}')
             elif url.fragment and target.suffix == '.md':
-                if unquote(url.fragment) not in heading_ids(target.read_text()):
+                if unquote(url.fragment) not in heading_ids(target.read_text(encoding='utf-8')):
                     errors.append(f'{rel}: missing heading anchor: {ref}')
         if path.parent == root / 'commands':
             counts['command_files'] += 1
-            front = text.split('---', 2)[1] if text.startswith('---\n') and text.count('---') >= 2 else ''
+            front = frontmatter(text)
             if not re.search(r'^description:\s*\S', front, re.M):
                 errors.append(f'{rel}: missing command description frontmatter')
             for name in re.findall(r'/nemp:([a-z][a-z-]*)', text):
@@ -106,8 +112,8 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
             if '/nemp-pro:' in text:
                 errors.append(f'{rel}: obsolete plugin namespace')
     try:
-        plugin = json.loads((root / '.claude-plugin/plugin.json').read_text())
-        market = json.loads((root / '.claude-plugin/marketplace.json').read_text())
+        plugin = json.loads((root / '.claude-plugin/plugin.json').read_text(encoding='utf-8'))
+        market = json.loads((root / '.claude-plugin/marketplace.json').read_text(encoding='utf-8'))
         entry = next(p for p in market['plugins'] if p['name'] == plugin['name'])
         if plugin['version'] != '0.3.0' or entry['version'] != '0.3.0':
             errors.append('Plugin and marketplace package versions must remain 0.3.0')
@@ -118,7 +124,7 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
                 errors.append(f'Plugin {field} directory missing')
     except (OSError, ValueError, KeyError, StopIteration) as exc:
         errors.append(f'Manifest check failed: {exc}')
-    readme = (root / 'README.md').read_text()
+    readme = (root / 'README.md').read_text(encoding='utf-8')
     if 'Agentic memory that evolves with your work' not in readme:
         errors.append('README tagline missing')
     if 'version-0.3.0-' not in readme:
@@ -126,10 +132,10 @@ def check(root: Path) -> tuple[list[str], dict[str, int]]:
     if 'Nemp banner' in readme or '100%25-Local' in readme:
         errors.append('README references retired hero or unqualified locality badge')
     for path in (root / 'SKILL.md', root / 'skills/nemp-memory/SKILL.md'):
-        text = path.read_text()
+        text = path.read_text(encoding='utf-8')
         if not text.startswith('---\n') or '\\#' in text or '\\*' in text:
             errors.append(f'{path.relative_to(root)}: malformed skill Markdown/frontmatter')
-    activation = (root / 'commands/activate.md').read_text()
+    activation = (root / 'commands/activate.md').read_text(encoding='utf-8')
     if 'Nemp Pro activated!' in activation or 'All Pro features are now unlocked' in activation:
         errors.append('Activation command falsely claims a working Pro unlock')
     for asset in ['assets/logo/Nemp Logo.png', 'assets/brand/memory-lifecycle.svg']:

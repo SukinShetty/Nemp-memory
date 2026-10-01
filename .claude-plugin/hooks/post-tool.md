@@ -207,7 +207,9 @@ Auto-export should ONLY trigger when `.nemp/memories.json` was written:
 
 Read `autoExport.targets` from `.nemp-pro/config.json`.
 
-For each target, perform the export (same logic as `/nemp:nemp-pro-export --<target>`):
+For each target, follow the export logic and required write-safety preflight in [provider export](../../commands/nemp-pro-export.md). Never silently replace existing rule files. If overwrite approval or a verified backup is needed, stop that target and report it for user review; this hook cannot bypass confirmation.
+
+Target paths:
 
 **For "codex":** Generate `AGENTS.md` in project root from memories
 **For "cursor":** Generate `.cursor/rules/nemp-memory.mdc` from memories
@@ -252,14 +254,14 @@ alwaysApply: true
 
 ### 4. Update lastExport Timestamp
 
-After export completes, update `autoExport.lastExport` in `.nemp-pro/config.json` to current ISO timestamp.
+Update `autoExport.lastExport` only when every configured target was verified as successfully written or already identical to the proposed content. If any target was skipped, failed or needs approval, retain the prior timestamp. Never record partial execution as an all-target success.
 
-### 5. Silent Operation
+### 5. Concise, Accurate Results
 
-**IMPORTANT:** This hook operates silently.
-- Do NOT output verbose messages
-- After export completes, output ONLY: `Exported` (or `Synced | Exported` if both Part B and C ran)
-- If there's an error reading memories, report it briefly and continue
+- Keep output brief, but report skipped, failed and needs-approval targets by path
+- Use `Exported` (or `Synced | Exported`) only when every requested target completed successfully; use `Already current` if no write was needed
+- For partial results, list successful targets and their backup paths separately from skipped/failed targets
+- If memory loading fails, stop the export and report the error; do not continue with guessed or stale content
 
 ---
 
