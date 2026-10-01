@@ -54,7 +54,7 @@ What happens now:
   - /nemp:init   -> CLAUDE.md updates automatically
   - /nemp:forget -> CLAUDE.md updates automatically
 
-CLAUDE.md will always stay in sync with your memories.
+These commands refresh the Nemp section when they complete successfully. Review the resulting diff; this is not a background file watcher.
 ```
 
 **For `off`:**
@@ -124,7 +124,7 @@ What happens now:
   - /nemp:init   -> CLAUDE.md updates automatically
   - /nemp:forget -> CLAUDE.md updates automatically
 
-CLAUDE.md will always stay in sync with your memories.
+These commands refresh the Nemp section when they complete successfully. Review the resulting diff; this is not a background file watcher.
 ```
 
 ### Disable auto-sync

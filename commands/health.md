@@ -234,12 +234,8 @@ If no issues found:
 
 ---
 
-## Nemp Pro
+## Nemp Pro (planned)
 
-Unlock advanced diagnostics with [Nemp Pro](https://nemp.dev/pro):
+Advanced diagnostics and repair are planned. `--verbose` and `--fix` are not implemented by this command. Cortex is an availability notice in this build.
 
-- `/nemp:health --verbose` — Show pass/fail status for every check
-- `/nemp:health --fix` — Auto-fix safe issues (empty values, missing files)
-- `/nemp:cortex` — Memory intelligence with trust scores and conflict detection
-
-Already have a license? Run `/nemp:activate <key>` to unlock.
+See the [roadmap](../docs/ROADMAP.md). `/nemp:activate` does not verify or unlock Pro in this repository.

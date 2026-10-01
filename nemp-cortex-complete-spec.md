@@ -1,10 +1,12 @@
-# NEMP CORTEX — Complete Build Specification
+# Nemp Cortex — design proposal
 
-**Tagline:** *"Memory that thinks."*
+> **Unimplemented design material.** This earlier proposal is retained for discussion. It is not the feature list of Nemp Open v0.3.0, evidence of a working Pro product, or a release commitment. See [current capabilities](README.md#what-works-today) and the [roadmap](docs/ROADMAP.md).
 
-**What it is:** The intelligence layer of Nemp. Cortex turns passive memory storage into a self-evolving, self-correcting cognitive system. It tracks what agents use, learns why it matters, predicts what's needed next, detects its own contradictions, validates itself against reality, and rewrites memories into better forms — all locally, zero cloud, zero ML models.
+**Nemp:** Agentic memory that evolves with your work.
 
-**Why it exists:** Every AI memory tool today (Mem0, Zep, claude-mem, Supermemory) is a filing cabinet. Nemp Cortex is the first memory system that behaves like a brain.
+**Proposed direction:** An optional memory-maintenance layer that could track usage, surface contradictions and recommend context changes. Local storage remains the intended foundation; model processing and any license/delivery services have separate privacy boundaries.
+
+The algorithms, scores, command names and examples below are draft design choices. They require implementation, empirical evaluation, source-backed review and reversible changes. Usage frequency must not be interpreted as factual confidence. No competitor-uniqueness claim is made.
 
 ---
 

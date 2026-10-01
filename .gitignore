@@ -21,3 +21,10 @@ Desktop.ini
 
 # Test files
 test*.js
+
+# Experimental Nemp activity/configuration data
+.nemp-pro/
+
+# Local documentation previews and Python cache
+.docs-preview/
+__pycache__/

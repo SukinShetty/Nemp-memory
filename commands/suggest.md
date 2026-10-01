@@ -1,9 +1,11 @@
 ---
-description: "Analyze activity and suggest memories to save"
+description: "Experimental: Analyze activity and suggest memories to save"
 argument-hint: "[--auto]"
 ---
 
 # /nemp:suggest
+
+> Experimental: suggestions depend on an available activity log. Review proposed memories by default; `--auto` explicitly opts into saving without individual review. Activity frequency is not evidence that an inferred fact is true.
 
 Intelligently suggest memories to save based on your recent work patterns.
 

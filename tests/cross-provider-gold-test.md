@@ -1,8 +1,10 @@
-# Cross-Provider Export: Gold Test Suite
+# Cross-provider acceptance plan (experimental)
+
+> **Not a passing test report.** These are future/experimental acceptance checks. The public plugin has prototype export instructions, but import is a notice and automatic export triggers are unverified. Run only implemented steps in disposable fixtures and record blocked checks separately.
 
 ## Purpose
 
-This test suite validates that cross-provider memory export/import works correctly.
+This plan describes how cross-provider memory export/import should be evaluated when those paths are implemented.
 Save these 10 test memories, export to each provider, and verify the output.
 
 ## Step 1: Save Test Memories
@@ -25,7 +27,7 @@ Run these commands in Claude Code:
 ## Step 2: Export to All Providers
 
 ```
-/nemp-pro:export --all
+/nemp:nemp-pro-export --all
 ```
 
 Expected output:
@@ -63,7 +65,7 @@ Ask the same 10 questions. Pass threshold: 10/10
 Open project in Windsurf. The .windsurfrules file should be auto-read.
 Ask the same 10 questions. Pass threshold: 10/10
 
-## Step 6: Import Round-Trip Test
+## Step 6: Import round trip (blocked: import is not implemented)
 
 Edit AGENTS.md manually to add:
 ```
@@ -72,15 +74,15 @@ Edit AGENTS.md manually to add:
 
 Then in Claude Code:
 ```
-/nemp-pro:import --codex
+/nemp:import --codex
 ```
 
 Expected: "new-key" appears in /nemp:list
 
-## Step 7: Auto-Export Test
+## Step 7: Auto-export (blocked pending trigger implementation/validation)
 
 ```
-/nemp-pro:auto-export on
+/nemp:auto-export on
 /nemp:save test-auto "This tests auto-export"
 ```
 

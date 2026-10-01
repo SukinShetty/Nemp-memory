@@ -1,47 +1,57 @@
 # Contributing to Nemp
 
-Thank you for considering contributing to Nemp! 🎉
+Nemp is agentic memory that evolves with your work. Useful contributions make that promise concrete: clearer context, safer updates and evidence that the workflow works.
 
-## How to Contribute
+## Start with an issue
 
-### Reporting Bugs
-- Use GitHub Issues
-- Include: Steps to reproduce, expected behavior, actual behavior
-- Add screenshots if applicable
+For bugs, include the host/version, OS, Nemp version, exact command, expected result and a minimal redacted example. For features, explain the workflow and why current commands cannot support it. Avoid posting private memories, credentials or unredacted logs.
 
-### Suggesting Features
-- Open an issue with [Feature Request] tag
-- Describe the use case
-- Explain why it would be useful
+## Work on a local checkout
 
-### Code Contributions
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-### Development Setup
 ```bash
-# Clone your fork
 git clone https://github.com/YOUR_USERNAME/Nemp-memory.git
-
-# Install as local plugin
 cd Nemp-memory
-claude plugin install .
+claude --plugin-dir .
 ```
 
-### Code Style
-- Follow existing patterns
-- Keep it simple
-- Comment complex logic
-- Test before submitting
+For a realistic memory test, create a disposable project, initialize Git there, and start Claude Code with `--plugin-dir /absolute/path/to/Nemp-memory`. This prevents sample memories from contaminating your real work.
 
-## Questions?
+`sync-plugin.ps1` is a legacy maintainer-specific cache helper with hard-coded paths. It is not the recommended setup path. Use the host's [local plugin workflow](https://code.claude.com/docs/en/plugins) instead.
 
-Open an issue or email us at contact@nemp.dev
+## Repository map
 
----
+- `commands/`: instructions executed by the host agent
+- `skills/nemp-memory/`: Claude Code skill entry point
+- `SKILL.md`: experimental file-based entry point for other skill hosts
+- `.claude-plugin/`: plugin and marketplace manifests; experimental hook material
+- `docs/`: product behavior, limitations, setup, privacy and roadmap
+- `assets/brand/`: current mark and editable lifecycle diagram
+- `tests/`: manual acceptance plans, not claims of passing runtime tests
+- `scripts/check_docs.py`: dependency-free static consistency checks
 
-Thank you for making Nemp better! ⭐
+## Checks before a pull request
+
+```bash
+python3 scripts/check_docs.py
+claude plugin validate .
+```
+
+Run the [memory smoke checks](tests/memory-smoke-test.md) in your test host. Record what passed, failed or was not run. Static checks do not execute memory commands or prove cross-provider compatibility.
+
+When changing a command, review every linked example and the [command reference](docs/COMMANDS.md). Preserve existing memory, surrounding rules and user settings. Explain schema changes and include migration/rollback tests before claiming compatibility.
+
+Keep the product version at `0.3.0` unless a version change is explicitly agreed. Do not move historical tags to match documentation.
+
+## What needs help
+
+- Storage-shape consistency and safe migration
+- Atomic/concurrent writes and recoverable edits
+- Reliable activity hooks and export boundaries
+- Retrieval fixtures that measure useful context, not just repeated reads
+- Host-specific integration tests with redacted inputs and observed results
+
+## Writing and design
+
+Follow [Brand](docs/BRAND.md). Name Nemp first; put host integrations in their own context. Distinguish shipped, experimental and planned work. Prefer inspectable examples over superlatives, unsupported compatibility claims or performance numbers.
+
+Open a focused pull request with a summary, changed behavior, checks performed and remaining limitations. See the [Code of Conduct](CODE_OF_CONDUCT.md).
