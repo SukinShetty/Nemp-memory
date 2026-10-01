@@ -28,3 +28,6 @@ test*.js
 # Local documentation previews and Python cache
 .docs-preview/
 __pycache__/
+
+# Private rule-file backups from experimental provider exports
+*.nemp-backup-*

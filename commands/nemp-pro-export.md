@@ -46,6 +46,20 @@ If no argument is provided or the argument is unrecognised, display the Usage bl
 
 ---
 
+
+## Required write-safety preflight
+
+These safeguards apply to **every** provider target and take precedence over the write steps below. An export request alone is not permission to replace existing user-authored rules.
+
+1. Generate the proposed content in memory, then read each target before changing it. If an existing file cannot be read, stop for that target. Do not treat a read error as a missing file.
+2. If a target is absent, it may be created. If it already contains exactly the proposed content, leave it unchanged.
+3. If an existing target differs, show its exact path and a diff/summary of the content that would be removed or replaced. Ask for explicit overwrite approval. For `--all`, prepare all outputs and bundle the approval request for every existing target before making any writes. If approval is declined or unavailable, leave those files unchanged and report them as skipped.
+4. Before any approved replacement, create a byte-for-byte backup at `<target>.nemp-backup-<UTC timestamp>` with a unique suffix if needed. Never overwrite a backup. Verify the backup matches the original; if creation or verification fails, leave the target unchanged and report the error. Backups can contain private rules and should not be committed by default.
+5. Immediately before creating an initially absent target, check that it is still absent. If another process created it, stop and review it as an existing target instead of overwriting it. Re-read an existing target immediately before replacement. If it changed after review, stop and request review of the new diff rather than overwriting a concurrent edit. Then write only the approved content and verify the result.
+6. Report files created, replaced (with backup paths), unchanged, skipped and failed separately. Do not announce that all exports completed if any target was skipped or failed. `/nemp:nemp-pro-export --status` remains read-only.
+
+`CLAUDE.md` sync in `--all` continues to use the default Nemp-section update. Never add `--replace` implicitly. A background hook must stop when overwrite approval is needed; it may not bypass this preflight.
+
 ## Memory Reading Logic (used by all export subcommands)
 
 Before generating any export file, perform these steps to load and prepare memories. This logic is shared by `--codex`, `--cursor`, `--windsurf`, and `--all`.
@@ -187,7 +201,7 @@ To write back: add entries to .nemp/memories.json following existing format
 
 ### Step 9a: Write AGENTS.md
 
-Write the generated content to `AGENTS.md` in the project root using the Write tool.
+Apply the required write-safety preflight above, then use the Write tool only for an absent target or an explicitly approved replacement with a verified backup. Verify `AGENTS.md` matches the approved content.
 
 ### Step 10a: Confirm to User
 
@@ -261,7 +275,7 @@ alwaysApply: true
 
 ### Step 10b: Write the MDC File
 
-Write the generated content to `.cursor/rules/nemp-memory.mdc` using the Write tool.
+Apply the required write-safety preflight above, then use the Write tool only for an absent target or an explicitly approved replacement with a verified backup. Verify `.cursor/rules/nemp-memory.mdc` matches the approved content.
 
 ### Step 11b: Confirm to User
 
@@ -320,7 +334,7 @@ To update: save memories with /nemp:save in Claude Code, then /nemp:nemp-pro-exp
 
 ### Step 9c: Write .windsurfrules
 
-Write the generated content to `.windsurfrules` in the project root using the Write tool.
+Apply the required write-safety preflight above, then use the Write tool only for an absent target or an explicitly approved replacement with a verified backup. Verify `.windsurfrules` matches the approved content.
 
 ### Step 10c: Confirm to User
 
@@ -343,7 +357,7 @@ Run all three exports and also sync CLAUDE.md.
 
 ### Step 8d: Run All Exports in Sequence
 
-Execute the following in order:
+First prepare all proposed outputs, inspect the existing targets, and complete the bundled write-safety preflight before changing any file. Then execute the approved operations in order:
 
 1. **Codex export**: perform Steps 8a–10a to generate `AGENTS.md`.
 2. **Cursor export**: perform Steps 8b–11b to generate `.cursor/rules/nemp-memory.mdc`.
@@ -352,7 +366,7 @@ Execute the following in order:
 
 ### Step 9d: Confirm to User
 
-Display a combined summary:
+Display a combined summary of actual results. Use the success example only when every requested operation completed; otherwise list skipped/failed targets and successful backup paths explicitly:
 
 ```
 ✅ Nemp experimental export — All exports complete
@@ -549,6 +563,6 @@ User: `/nemp:nemp-pro-export --codex`
 - `/nemp:init` — Auto-detect project stack and initialize memories
 - `/nemp:list` — View all memory keys and values
 - `/nemp:forget` — Remove a memory
-- `/nemp:cortex` — Memory intelligence layer (manages vitality and extinct state)
+- `/nemp:cortex` — Planned memory-maintenance notice; no engine is implemented here
 - `/nemp:auto-capture` — Toggle auto-capture of agent activity
 - `/nemp:activity` — View or manage the captured activity log
