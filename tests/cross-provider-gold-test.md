@@ -88,6 +88,10 @@ Expected: "new-key" appears in /nemp:list
 
 Expected: AGENTS.md automatically updates to include "test-auto"
 
+## Existing-rule safety checks
+
+Before declaring provider exports usable, create synthetic existing rules in each target. Verify that declining overwrite leaves the file unchanged; approving overwrite creates a verified, uniquely named backup first; backup failure prevents replacement; and a concurrent edit stops the write. Confirm skipped/failed targets are not reported as successful.
+
 ## Pass Criteria
 
 - [ ] All 10 gold memories export correctly to all 3 providers

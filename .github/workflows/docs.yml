@@ -9,6 +9,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Check documentation and manifests
         run: python3 scripts/check_docs.py
+      - name: Test documentation checker
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
