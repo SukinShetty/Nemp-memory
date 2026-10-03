@@ -1,0 +1,11 @@
+{
+  "name": "nemp-mod",
+  "version": "0.1.0",
+  "description": "Experimental: Nemp memory inside Claude Code: prompt recall, a Nemp pane, a nemp_recall tool and opt-in decision capture.",
+  "author": {
+    "name": "Sukin Shetty",
+    "email": "contact@nemp.dev"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

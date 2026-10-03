@@ -31,3 +31,6 @@ __pycache__/
 
 # Private rule-file backups from experimental provider exports
 *.nemp-backup-*
+
+# Types the engine lays beside a loaded mod
+nemp-mod/.claude-plugin/types/
