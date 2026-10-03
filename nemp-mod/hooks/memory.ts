@@ -84,7 +84,8 @@ export const memoryId = (m: { source: MemorySource; key: string }) => `${m.sourc
 // recall.md Phase 4: basic keyword expansion, no embeddings.
 const SYNONYMS: string[][] = [
   ['package', 'npm', 'pnpm', 'yarn', 'bun', 'dependency', 'dependencies', 'install'],
-  ['auth', 'authentication', 'login', 'jwt', 'token', 'session', 'oauth', 'cookie'],
+  // Not 'token': design tokens and model tokens are not auth.
+  ['auth', 'authentication', 'login', 'jwt', 'session', 'oauth', 'cookie'],
   ['db', 'database', 'postgres', 'postgresql', 'prisma', 'sql', 'migration', 'schema'],
   ['test', 'testing', 'vitest', 'jest', 'playwright', 'e2e', 'unit'],
   ['deploy', 'deployment', 'release', 'ci', 'hosting', 'pipeline', 'actions'],
@@ -95,7 +96,9 @@ const SYNONYMS: string[][] = [
 ]
 
 const STOPWORDS = new Set(
-  ('the and for with that this from have what how should would could into about ' +
+  ('in on of to is it be or an as at by we us me my its no so if up ' +
+    'only one also very more most some each other ' +
+    'the and for with that this from have what how should would could into about ' +
     'when where which there their them then than your you are was were will can ' +
     'does did not but all any use using our out new add get set make like just')
     .split(' '),
@@ -108,7 +111,7 @@ const stem = (w: string) =>
 
 export function tokenize(text: string): string[] {
   return [...new Set(
-    text.toLowerCase().split(/[^a-z0-9]+/)
+    text.toLowerCase().replace(/['’]/g, '').split(/[^a-z0-9]+/) // don't -> dont
       .filter(w => w.length >= 2 && !STOPWORDS.has(w))
       .map(stem),
   )]
@@ -137,13 +140,14 @@ export function scoreMemory(query: string, memory: Memory): number {
   for (const token of queryTokens) {
     const direct =
       keyTokens.has(token) ? 0.6 : tagTokens.has(token) ? 0.45 : valueTokens.has(token) ? 0.3 : 0
-    if (direct > 0) {
-      raw += direct
-      continue
-    }
     const related = synonymsOf(token)
-    if (related.some(w => keyTokens.has(w) || tagTokens.has(w))) raw += 0.45
-    else if (related.some(w => valueTokens.has(w))) raw += 0.2
+    const expanded =
+      related.some(w => keyTokens.has(w) || tagTokens.has(w)) ? 0.45
+      : related.some(w => valueTokens.has(w)) ? 0.2
+      : 0
+    // Each token counts once, at its strongest match: a word found in the
+    // value must not hide a synonym of it in the key.
+    raw += Math.max(direct, expanded)
   }
   if (memory.source === 'project') raw *= 1.1 // project before global
   return 1 - Math.exp(-raw)
@@ -284,6 +288,100 @@ export function upsertEntry(
     links: defaultLinks(),
   }
   return { store: { ...store, entries: [...store.entries, entry] }, isUpdate: false, entry }
+}
+
+// ---- save.md step 9b: contradiction check ----
+
+/** Tools that do one job: two values naming different ones disagree. */
+const TOOL_FAMILIES: string[][] = [
+  ['npm', 'pnpm', 'yarn', 'bun'],
+  ['vitest', 'jest', 'mocha', 'jasmine'],
+  ['playwright', 'cypress', 'puppeteer', 'selenium'],
+  ['postgres', 'mysql', 'mariadb', 'sqlite', 'mongodb', 'dynamodb'],
+  ['prisma', 'typeorm', 'drizzle', 'sequelize', 'knex', 'mongoose'],
+  ['redis', 'memcached', 'valkey'],
+  ['tailwind', 'bootstrap', 'sass', 'scss', 'emotion'],
+  ['rest', 'graphql', 'grpc', 'trpc'],
+  ['fly', 'vercel', 'netlify', 'heroku', 'railway'],
+]
+const ALIASES: Record<string, string> = { postgresql: 'postgres', 'fly.io': 'fly' }
+
+const words = (value: string) =>
+  (value.toLowerCase().match(/[a-z0-9][a-z0-9.]*/g) ?? []).map(w => w.replace(/\.$/, '')).map(w => ALIASES[w] ?? w)
+
+/** `postgresql 16` → postgres: 16, `api v2` → api: 2. */
+function versions(value: string): Map<string, string> {
+  const out = new Map<string, string>()
+  const ws = words(value)
+  ws.forEach((w, i) => {
+    const next = ws[i + 1]?.match(/^v?(\d+(?:\.\d+)*)$/)
+    if (next && /^[a-z]/.test(w)) out.set(w, next[1] as string)
+  })
+  return out
+}
+
+const urls = (value: string) => new Set(value.match(/https?:\/\/[^\s,;)]+/g) ?? [])
+const isAffirming = (v: string) => /\b(always|must)\b/i.test(v) && !/\bmust not\b/i.test(v)
+const isForbidding = (v: string) => /\b(never|must not|do not|don't)\b/i.test(v)
+
+/** save.md 9b, step 1 and 2: the first word of a key before its first hyphen. */
+export const keyStem = (key: string) => key.split('-')[0] ?? key
+
+/**
+ * Why two values in one key family may contradict (save.md 9b, step 3), or
+ * undefined: different tools for one job, different versions of one thing,
+ * different URLs, or "always" against "never" about a shared subject.
+ */
+export function contradiction(a: string, b: string): string | undefined {
+  const wa = new Set(words(a))
+  const wb = new Set(words(b))
+  for (const family of TOOL_FAMILIES) {
+    const ta = family.filter(t => wa.has(t))
+    const tb = family.filter(t => wb.has(t))
+    // Disjoint, not merely different: "REST; GraphQL retired" agrees with "REST".
+    if (ta.length > 0 && tb.length > 0 && !ta.some(t => tb.includes(t))) {
+      return `${ta.join('/')} vs ${tb.join('/')}`
+    }
+  }
+  const vb = versions(b)
+  for (const [name, version] of versions(a)) {
+    const other = vb.get(name)
+    if (other !== undefined && other !== version) return `${name} ${version} vs ${other}`
+  }
+  const ua = urls(a)
+  const ub = urls(b)
+  if (ua.size > 0 && ub.size > 0 && ![...ua].some(u => ub.has(u))) return 'different URLs'
+  const shared = tokenize(a).filter(t => tokenize(b).includes(t))
+  if (shared.length > 0 && ((isAffirming(a) && isForbidding(b)) || (isForbidding(a) && isAffirming(b)))) {
+    return 'always vs never'
+  }
+  return undefined
+}
+
+export type Conflict = { key: string; withKey: string; reason: string }
+
+/** The live memories in `entry`'s key family whose values contradict it. */
+export function findConflicts(entry: Entry, entries: readonly Entry[]): Conflict[] {
+  const stem = keyStem(entry.key)
+  return entries.flatMap(other => {
+    if (other.key === entry.key || isExtinct(other) || keyStem(other.key) !== stem) return []
+    const reason = contradiction(entry.value, other.value)
+    return reason === undefined ? [] : [{ key: entry.key, withKey: other.key, reason }]
+  })
+}
+
+/** Records a conflict under both entries' `links.conflicts`, once each. */
+export function linkConflict(store: Store, { key, withKey }: Conflict): Store {
+  const addTo = (e: Entry, other: string): Entry => {
+    const links = isObject(e.links) ? e.links : defaultLinks()
+    const conflicts = Array.isArray(links.conflicts) ? links.conflicts : []
+    if (conflicts.includes(other)) return e
+    return { ...e, links: { ...links, conflicts: [...conflicts, other] } }
+  }
+  const entries = store.entries.map(e =>
+    e.key === key ? addTo(e, withKey) : e.key === withKey ? addTo(e, key) : e,
+  )
+  return { ...store, entries }
 }
 
 /** Reads the decision list the capture fork answers with; [] when unreadable. */

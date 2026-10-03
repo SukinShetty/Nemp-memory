@@ -28,6 +28,8 @@ declare module 'claude-code' {
       isCapturing: boolean
       /** The compact band above the prompt, used when the pane cannot be placed. */
       isBandShown: boolean
+      /** /nemp-debug on|off; off by default. Logs each recall to the transcript. */
+      isDebug: boolean
     }
   }
 }

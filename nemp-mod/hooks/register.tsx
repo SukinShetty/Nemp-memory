@@ -4,7 +4,10 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { MemorySource, RecalledMemory } from '../types'
 import {
   contextBlock,
+  findConflicts,
   isExtinct,
+  linkConflict,
+  normalizeKey,
   parseCaptured,
   parseStore,
   selectMemories,
@@ -17,6 +20,8 @@ const PANE = 'nemp'
 const TOOL = 'mcp__nemp-mod__nemp_recall'
 const RECALL_LIMIT = 5
 const RECALL_TIMEOUT_MS = 2000
+/** Capture toasts land after the turn, often while the person is reading it. */
+const TOAST_MS = 8000
 
 const lastRecalled = atom({ plugin: 'nemp-mod', key: 'lastRecalled' } as const, [])
 const pinned = atom({ plugin: 'nemp-mod', key: 'pinned' } as const, [])
@@ -24,6 +29,7 @@ const dropped = atom({ plugin: 'nemp-mod', key: 'dropped' } as const, [])
 const total = atom({ plugin: 'nemp-mod', key: 'total' } as const, 0)
 const isCapturing = atom({ plugin: 'nemp-mod', key: 'isCapturing' } as const, false)
 const isBandShown = atom({ plugin: 'nemp-mod', key: 'isBandShown' } as const, false)
+const isDebug = atom({ plugin: 'nemp-mod', key: 'isDebug' } as const, false)
 
 const CAPTURE_PROMPT = [
   "You are Nemp's memory capture step. Look only at the most recent user prompt and your reply to it.",
@@ -68,9 +74,22 @@ async function loadMemories($: EngineInterface): Promise<Memory[]> {
 
 const countLive = (memories: readonly Memory[]) => memories.filter(m => !isExtinct(m)).length
 
-async function showStatus($: EngineInterface) {
-  const n = (await read($, lastRecalled)).length
-  $.ui.status(`Nemp · ${await read($, total)} memories · ${n} recalled`)
+async function showStatus($: EngineInterface, skipped?: 'timeout' | 'error') {
+  const recall = skipped === undefined
+    ? `${(await read($, lastRecalled)).length} recalled`
+    : `recall skipped (${skipped})`
+  $.ui.status(`Nemp · ${await read($, total)} memories · ${recall}`)
+}
+
+/** Clears the last recall, so the pane and status never show a stale one. */
+async function skipRecall($: EngineInterface, reason: 'timeout' | 'error') {
+  await update($, lastRecalled, () => [])
+  await showStatus($, reason)
+}
+
+async function debugLog($: EngineInterface, line: string) {
+  // No "nemp-mod:" here: the engine leads every plugin log line with the name.
+  if (await read($, isDebug)) $.ui.log(line)
 }
 
 /** Races `work` against the clock; the work's late rejection is swallowed. */
@@ -130,7 +149,7 @@ async function appendLog($: EngineInterface, path: string, lines: string[]) {
 async function capture($: EngineInterface) {
   const reply = await $.model.fork({ prompt: CAPTURE_PROMPT })
   if (!reply.isAnswered) {
-    $.ui.log(`nemp-mod: capture skipped (${reply.reason})`, { to: 'debug' })
+    $.ui.log(`capture skipped (${reply.reason})`, { to: 'debug' })
     return
   }
   const decisions = parseCaptured(reply.text)
@@ -141,10 +160,22 @@ async function capture($: EngineInterface) {
   let store = parseStore(text) // a store that does not parse is never overwritten
   const now = new Date(await $.clock.now()).toISOString()
   const log: string[] = []
+  const savedKeys: string[] = []
+  const warnings: string[] = []
   for (const decision of decisions) {
+    const before = store.entries.find(e => e.key === normalizeKey(decision.key))
     const saved = upsertEntry(store, decision, { now, projectPath: target.projectPath })
     store = saved.store
+    savedKeys.push(saved.entry.key)
     log.push(`[${now.replace(/\.\d+Z$/, 'Z')}] WRITE key=${saved.entry.key} agent=main chars=${saved.entry.value.length}`)
+    if (before !== undefined && before.value !== saved.entry.value) {
+      warnings.push(`${saved.entry.key} replaced its earlier value "${before.value}"`)
+    }
+    // save.md 9b: never blocks the save, but records and names each conflict.
+    for (const conflict of findConflicts(saved.entry, store.entries)) {
+      store = linkConflict(store, conflict)
+      warnings.push(`${conflict.key} may conflict with ${conflict.withKey} (${conflict.reason})`)
+    }
   }
   await $.fs.write(target.path, serializeStore(store))
   await appendLog($, `${target.dir}/access.log`, log)
@@ -152,13 +183,16 @@ async function capture($: EngineInterface) {
   const memories = await loadMemories($)
   await update($, total, () => countLive(memories))
   await showStatus($)
-  $.ui.toast(`Nemp captured: ${decisions.map(d => d.key).join(', ')}`)
+  $.ui.toast(`Nemp saved: ${savedKeys.join(', ')}`, { timeoutMs: TOAST_MS })
+  if (warnings.length > 0) {
+    $.ui.toast(`Nemp: ${warnings.join('; ')}. Both kept; review with /nemp:recall.`, { timeoutMs: TOAST_MS })
+  }
 }
 
 function formatFound(query: string, found: readonly RecalledMemory[]) {
   if (found.length === 0) return `No Nemp memories matched "${query}".`
   return [
-    `Found ${found.length} Nemp memories for "${query}":`,
+    `Found ${found.length} Nemp ${found.length === 1 ? 'memory' : 'memories'} for "${query}":`,
     ...found.map(r => `- [${r.key}] (${r.source}${r.type ? `, ${r.type}` : ''}, score ${r.score}): ${r.value}`),
   ].join('\n')
 }
@@ -169,7 +203,7 @@ export const register: Register = on => {
       const memories = await loadMemories($)
       await update($, total, () => countLive(memories))
     } catch (err) {
-      $.ui.log(`nemp-mod: could not read memories: ${String(err)}`, { to: 'debug' })
+      $.ui.log(`could not read memories: ${String(err)}`, { to: 'debug' })
     }
     await showStatus($)
 
@@ -189,7 +223,7 @@ export const register: Register = on => {
         },
       })
     } catch (err) {
-      $.ui.log(`nemp-mod: could not register nemp_recall: ${String(err)}`)
+      $.ui.log(`could not register nemp_recall: ${String(err)}`)
     }
 
     try {
@@ -203,7 +237,17 @@ export const register: Register = on => {
         argumentHint: 'on|off',
       })
     } catch (err) {
-      $.ui.log(`nemp-mod: could not register commands: ${String(err)}`)
+      $.ui.log(`could not register commands: ${String(err)}`)
+    }
+
+    try {
+      await $.command.register({
+        name: 'nemp-debug',
+        description: 'Turn logging each Nemp recall to the transcript on or off (default off)',
+        argumentHint: 'on|off',
+      })
+    } catch (err) {
+      $.ui.log(`could not register /nemp-debug: ${String(err)}`)
     }
 
     return next(e)
@@ -217,15 +261,20 @@ export const register: Register = on => {
       const outcome = await withTimeout($, recallFor($, e.text), RECALL_TIMEOUT_MS)
       if (outcome === TIMED_OUT) {
         $.ui.toast('Nemp: recall took over 2s, so your prompt was sent without memories')
+        await skipRecall($, 'timeout')
+        await debugLog($, 'recall skipped (timeout)')
         return next(e)
       }
       recalled = outcome.recalled
       await update($, total, () => outcome.total)
       await update($, lastRecalled, () => recalled)
       await showStatus($)
+      const top = recalled.map(r => `${r.key}:${r.isPinned ? 'pinned' : r.score.toFixed(2)}`).join(' ')
+      await debugLog($, `recall n=${recalled.length} of ${outcome.total}${top === '' ? '' : ` top=${top}`}`)
     } catch (err) {
       $.ui.toast('Nemp: recall failed, so your prompt was sent without memories')
-      $.ui.log(`nemp-mod: recall failed: ${String(err)}`, { to: 'debug' })
+      $.ui.log(`recall failed: ${String(err)}`, { to: 'debug' })
+      await skipRecall($, 'error')
       return next(e)
     }
 
@@ -257,7 +306,7 @@ export const register: Register = on => {
     if (!(await read($, isCapturing))) return out
     // After the turn, outside its dispatch: capture never holds the session up.
     $.clock.after(0, () => {
-      capture($).catch(err => $.ui.log(`nemp-mod: capture failed: ${String(err)}`))
+      capture($).catch(err => $.ui.log(`capture failed: ${String(err)}`))
     })
     return out
   })
@@ -287,23 +336,60 @@ export const register: Register = on => {
     }
   })
 
+  on('command.run', { command: 'nemp-debug' }, async ($, e) => {
+    const arg = e.args.trim().toLowerCase()
+    if (arg === 'on' || arg === 'off') {
+      await update($, isDebug, () => arg === 'on')
+    } else if (arg !== '') {
+      return { text: 'Usage: /nemp-debug on|off' }
+    }
+    return {
+      text: (await read($, isDebug))
+        ? 'Nemp debug is on: each recall is logged to the transcript.'
+        : 'Nemp debug is off.',
+    }
+  })
+
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Button, Text } = $.ui.resolve(e)
     const list = await read($, lastRecalled)
     const pins = await read($, pinned)
     const drops = await read($, dropped)
+    // Dropped memories no longer recall, so the last prompt's list cannot
+    // bring them back: they get a section of their own.
+    const shown = new Set(list.map(r => r.id))
+    const droppedElsewhere = drops.filter(id => !shown.has(id))
+    const droppedSection = droppedElsewhere.length === 0 ? null : (
+      <Box key="dropped" flexDirection="column" marginTop={1}>
+        <Text bold>Dropped this session</Text>
+        {droppedElsewhere.map((id, i) => {
+          const [source, ...key] = id.split(':')
+          return (
+            <Box key={`dropped-${i + 1}`} gap={1}>
+              <Text>{key.join(':')}</Text>
+              <Text dimColor>{source}</Text>
+              <Button key={`restore-${i + 1}`} label="Restore" onPress={() => toggleDrop($, id)} />
+            </Box>
+          )
+        })}
+      </Box>
+    )
+    const title = <Text key="title" bold>Nemp</Text>
 
     if (list.length === 0) {
       return (
         <Box flexDirection="column">
+          {title}
           <Text dimColor>No memories were injected on the last prompt.</Text>
           <Text dimColor>{`Nemp · ${await read($, total)} memories`}</Text>
+          {droppedSection}
         </Box>
       )
     }
 
     return (
       <Box flexDirection="column">
+        {title}
         <Text dimColor>Injected on the last prompt. Keys 1-5 pin, 6-0 drop.</Text>
         {list.map((r, i) => {
           const isPinned = pins.includes(r.id)
@@ -330,6 +416,7 @@ export const register: Register = on => {
             </Box>
           )
         })}
+        {droppedSection}
       </Box>
     )
   })

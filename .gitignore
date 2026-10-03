@@ -32,5 +32,6 @@ __pycache__/
 # Private rule-file backups from experimental provider exports
 *.nemp-backup-*
 
-# Types the engine lays beside a loaded mod
+# Types the engine lays beside a loaded mod, and the tsconfig it writes to extend them
 nemp-mod/.claude-plugin/types/
+nemp-mod/tsconfig.json

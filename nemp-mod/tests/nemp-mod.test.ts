@@ -2,7 +2,16 @@ import { describe, expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 import type { On, RenderElement } from 'claude-code'
 
-import { parseStore, selectMemories, serializeStore, upsertEntry } from '../hooks/memory'
+import {
+  contradiction,
+  findConflicts,
+  parseStore,
+  scoreMemory,
+  selectMemories,
+  serializeStore,
+  tokenize,
+  upsertEntry,
+} from '../hooks/memory'
 
 const CWD = 'C:/work/app'
 const HOME = 'C:/Users/dev'
@@ -34,6 +43,8 @@ type World = {
   contexts: (readonly string[] | undefined)[]
   toasts: string[]
   statuses: (string | undefined)[]
+  /** Lines logged to the transcript (debug-only lines left out). */
+  logs: string[]
 }
 
 type WorldOptions = {
@@ -48,7 +59,7 @@ const norm = (path: string) => path.replace(/\\/g, '/')
 /** The engine beneath the plugin: a cwd, a home, files in memory, a prompt sink. */
 function world(on: On, options: WorldOptions = {}): World {
   const files = options.files ?? { [PROJECT]: PROJECT_STORE, [GLOBAL]: GLOBAL_STORE }
-  const w: World = { files, contexts: [], toasts: [], statuses: [] }
+  const w: World = { files, contexts: [], toasts: [], statuses: [], logs: [] }
   mock.env(on, { HOME })
   on('session.cwd', () => ({ value: CWD }))
   on('fs.exists', ($, e) => ({ value: norm(e.path) in w.files }))
@@ -69,7 +80,10 @@ function world(on: On, options: WorldOptions = {}): World {
     w.statuses.push(e.text)
     return { value: undefined }
   })
-  on('ui.log', () => ({ value: undefined }))
+  on('ui.log', ($, e) => {
+    if (e.to !== 'debug') w.logs.push(e.text)
+    return { value: undefined }
+  })
   on('session.start', ($, e) => ({ cwd: e.cwd }))
   on('prompt.submit', ($, e) => {
     w.contexts.push(e.context)
@@ -147,6 +161,49 @@ describe('recall', () => {
     expect(w.contexts).toEqual([undefined, undefined])
     expect(w.toasts).toEqual([])
   })
+
+  test('recalls on a word in the value when its synonym is the key (the live prompt)', async ($, on) => {
+    // The wording of the store the live test failed on: "endpoints" is in the value, "api" in the key.
+    const store = JSON.stringify([
+      entry('api-style', 'REST for all public APIs; GraphQL retired, must not be used for new endpoints'),
+      entry('auth-flow', 'JWT access tokens (15 min) + refresh tokens (7 days) in httpOnly cookies'),
+      entry('style-css', 'Tailwind only, no CSS modules; design tokens in tailwind.config.ts'),
+    ])
+    const w = world(on, { files: { [PROJECT]: store } })
+    const live = "How should I add a new endpoint? Just answer in a few lines, don't edit any files."
+    const block = (await submit($, live)).context?.[0] ?? ''
+
+    expect(block).toContain('[api-style]')
+    expect(block).not.toContain('[auth-flow]')
+    expect(block).not.toContain('[style-css]')
+    expect(w.statuses.at(-1)).toBe('Nemp · 3 memories · 1 recalled')
+  })
+
+  test('function words such as "in" match nothing on their own', () => {
+    const memories = parseStore(PROJECT_STORE).entries.map(e => ({ ...e, source: 'project' as const }))
+    expect(memories.map(m => scoreMemory('in', m))).toEqual(memories.map(() => 0))
+    expect(tokenize("don't edit in the files")).toEqual(['dont', 'edit', 'file'])
+  })
+})
+
+describe('/nemp-debug', () => {
+  test('is off by default and logs each recall to the transcript when on', async ($, on) => {
+    const w = world(on)
+    await submit($, LOGIN_PROMPT)
+    expect(w.logs).toEqual([])
+
+    expect((await runCommand($, 'nemp-debug', 'on')).text).toContain('debug is on')
+    await submit($, LOGIN_PROMPT)
+    await submit($, 'hello there, nice weather')
+    // The engine adds "nemp-mod:" to every plugin log line, so the mod must not.
+    expect(w.logs[0]).toMatch(/^recall n=2 of 7 top=\S+:0\.\d\d \S+:0\.\d\d$/)
+    expect(w.logs[1]).toBe('recall n=0 of 7')
+
+    expect((await runCommand($, 'nemp-debug', 'off')).text).toContain('debug is off')
+    await submit($, LOGIN_PROMPT)
+    expect(w.logs).toHaveLength(2)
+    expect((await runCommand($, 'nemp-debug', 'maybe')).text).toBe('Usage: /nemp-debug on|off')
+  })
 })
 
 describe('pane pin and drop', () => {
@@ -186,6 +243,37 @@ describe('pane pin and drop', () => {
 
     const tool = await $.tool.call({ tool: TOOL, query: 'REST API style' })
     expect(String(tool.result)).not.toContain('[api-style]')
+  })
+
+  test('shows a visible Nemp title, with or without recalled memories', async ($, on) => {
+    world(on)
+    for (const prompt of ['hello there, nice weather', LOGIN_PROMPT]) {
+      await submit($, prompt)
+      const ui = await mountPane($, 'terminal')
+      expect((await ui.find({ text: /^Nemp$/ }))?.props.bold).toBe(true)
+      await ui.unmount()
+    }
+  })
+
+  test('lists dropped memories in their own section, where Restore brings them back', async ($, on) => {
+    world(on)
+    await submit($, LOGIN_PROMPT)
+    let ui = await mountPane($, 'terminal')
+    await ui.press({ key: `drop-${await rowOf(ui, 'api-style')}` })
+    await ui.unmount()
+
+    // api-style is no longer recalled, so only the dropped section can restore it.
+    const without = await submit($, 'add another REST API endpoint')
+    expect(without.context?.[0] ?? '').not.toContain('[api-style]')
+    ui = await mountPane($, 'terminal')
+    expect(await ui.find({ text: /^Dropped this session$/ })).toBeDefined()
+    expect(await ui.find({ text: /^api-style$/ })).toBeDefined()
+    await ui.press({ key: 'restore-1' })
+    expect(await ui.find({ text: /^Dropped this session$/ })).toBeUndefined()
+    await ui.unmount()
+
+    const restored = await submit($, 'add another REST API endpoint')
+    expect(restored.context?.[0]).toContain('[api-style]')
   })
 
   test('/nemp-pane falls back to a band above the prompt when the pane is not placed', async ($, on) => {
@@ -228,7 +316,9 @@ describe('nemp_recall tool', () => {
     await startSession($)
     const found = String((await $.tool.call({ tool: TOOL, query: 'database migrations', limit: 1 })).result)
 
-    expect(found).toContain('Found 1 Nemp memories')
+    expect(found).toContain('Found 1 Nemp memory for "database migrations":')
+    const two = String((await $.tool.call({ tool: TOOL, query: 'api login', limit: 2 })).result)
+    expect(two).toContain('Found 2 Nemp memories for')
     expect(found).toContain('[db-stack]')
     expect(found).not.toContain('[old-orm]')
   })
@@ -261,6 +351,7 @@ describe('never blocking a prompt', () => {
     expect(result.text).toBe(LOGIN_PROMPT)
     expect(result.context).toBeUndefined()
     expect(w.toasts).toEqual(['Nemp: recall took over 2s, so your prompt was sent without memories'])
+    expect(w.statuses.at(-1)).toBe('Nemp · 0 memories · recall skipped (timeout)')
   })
 
   test('passes the prompt through unchanged when a store does not parse', async ($, on) => {
@@ -270,6 +361,20 @@ describe('never blocking a prompt', () => {
     expect(result.text).toBe(LOGIN_PROMPT)
     expect(result.context).toBeUndefined()
     expect(w.toasts[0]).toContain('recall failed')
+    expect(w.statuses.at(-1)).toBe('Nemp · 0 memories · recall skipped (error)')
+  })
+
+  test('a skipped recall replaces the earlier count instead of keeping it', async ($, on) => {
+    const w = world(on)
+    await submit($, LOGIN_PROMPT)
+    expect(w.statuses.at(-1)).toBe('Nemp · 7 memories · 2 recalled')
+
+    w.files[PROJECT] = '{ not json'
+    await submit($, LOGIN_PROMPT)
+    expect(w.statuses.at(-1)).toBe('Nemp · 7 memories · recall skipped (error)')
+    const ui = await mountPane($, 'terminal')
+    expect(await ui.find({ text: /No memories were injected/ })).toBeDefined()
+    await ui.unmount()
   })
 })
 
@@ -323,9 +428,72 @@ describe('capture', () => {
       projectPath: CWD,
     })
     expect(w.files[`${CWD}/.nemp/access.log`]).toContain('WRITE key=monorepo-tool agent=main chars=32')
-    expect(w.toasts.at(-1)).toBe('Nemp captured: Monorepo Tool')
+    expect(w.toasts.at(-1)).toBe('Nemp saved: monorepo-tool')
 
     expect((await runCommand($, 'nemp-capture', 'off')).text).toContain('capture is off')
+  })
+})
+
+describe('capture contradiction check (save.md 9b)', () => {
+  const answer = (on: Parameters<typeof world>[0], decisions: object[]) => {
+    on('turn.complete', ($, e) => ({ text: e.answer }))
+    on('model.fork', () => ({
+      value: {
+        isAnswered: true,
+        text: JSON.stringify(decisions),
+        usage: { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
+      },
+    }))
+  }
+  const turn = { answer: 'ok', durationMs: 1, isAborted: false, turnId: 't', reason: 'answer' as const }
+
+  test('keeps both memories, links them under links.conflicts and names both keys', async ($, on) => {
+    const clock = mock.clock(on)
+    const w = world(on)
+    answer(on, [{ key: 'db-engine', value: 'MySQL 8 via Prisma ORM', type: 'decision' }])
+    await runCommand($, 'nemp-capture', 'on')
+    await $.turn.complete(turn)
+    await clock.advance(10)
+
+    const saved: { key: string; value: string; links: { conflicts: string[] } }[] =
+      JSON.parse(w.files[PROJECT] ?? '{}').memories
+    const byKey = (k: string) => saved.find(m => m.key === k)
+    expect(byKey('db-stack')?.value).toContain('PostgreSQL 16') // not overwritten
+    expect(byKey('db-engine')?.links.conflicts).toEqual(['db-stack'])
+    expect(byKey('db-stack')?.links.conflicts).toEqual(['db-engine'])
+    expect(w.toasts).toEqual([
+      'Nemp saved: db-engine',
+      'Nemp: db-engine may conflict with db-stack (mysql vs postgres). Both kept; review with /nemp:recall.',
+    ])
+  })
+
+  test('says so when a capture replaces an existing key\'s value', async ($, on) => {
+    const clock = mock.clock(on)
+    const w = world(on)
+    answer(on, [{ key: 'deploy-target', value: 'Deploy to Vercel from main' }])
+    await runCommand($, 'nemp-capture', 'on')
+    await $.turn.complete(turn)
+    await clock.advance(10)
+
+    expect(w.toasts[1]).toContain('deploy-target replaced its earlier value "Deploy to Fly.io from main via GitHub Actions"')
+  })
+
+  test('different families, or agreeing values, are not conflicts', () => {
+    const store = parseStore(PROJECT_STORE)
+    expect(findConflicts({ key: 'api-versioning', value: 'Version REST APIs in the URL path' }, store.entries)).toEqual([])
+    expect(findConflicts({ key: 'cache-store', value: 'Redis 7 for sessions' }, store.entries)).toEqual([])
+    expect(contradiction('Always use pnpm', 'Never use npm or yarn')).toBe('pnpm vs npm/yarn')
+    expect(contradiction('PostgreSQL 16 via Prisma', 'postgres 14')).toBe('postgres 16 vs 14')
+    expect(contradiction('Always squash commits', 'Never squash commits')).toBe('always vs never')
+  })
+})
+
+describe('scoring noise', () => {
+  test('"One line only" and "session" no longer recall style-css', () => {
+    const style = { ...entry('style-css', 'Tailwind only, no CSS modules; design tokens in tailwind.config.ts'), source: 'project' as const }
+    const prompt = 'How should we cache session data? One line only.'
+    expect(scoreMemory(prompt, style)).toBe(0)
+    expect(tokenize(prompt)).toEqual(['cache', 'session', 'data', 'line'])
   })
 })
 
